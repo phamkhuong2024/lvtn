@@ -11,16 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('danh_muc', function (Blueprint $table) {
-            $table->id();
-            $table->string('ten_danh_muc');
-            $table->text('mo_ta')->nullable();
+        Schema::create('mau_sac', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+             $table->id();
+            $table->string('ma_mau')->nullable();
+            $table->string('ten');
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('danh_muc');
+        Schema::dropIfExists('mau_sac');
     }
 };
