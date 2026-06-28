@@ -22,22 +22,22 @@
                 <form action="{{ route('category.update', $category->id) }}" method="POST">
                     @csrf
                     @method('PUT')
-                    
+
                     <div class="mb-3">
-                        <label for="ten_danh_muc" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ten_danh_muc') is-invalid @enderror" 
-                               id="ten_danh_muc" name="ten_danh_muc" 
-                               value="{{ old('ten_danh_muc', $category->ten_danh_muc) }}" required>
-                        @error('ten_danh_muc')
+                        <label for="ten" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('ten') is-invalid @enderror"
+                               id="ten" name="ten"
+                               value="{{ old('ten', $category->ten) }}" required>
+                        @error('ten')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="mb-3">
-                        <label for="mo_ta" class="form-label">Mô tả</label>
-                        <textarea class="form-control @error('mo_ta') is-invalid @enderror" 
-                                  id="mo_ta" name="mo_ta" rows="4">{{ old('mo_ta', $category->mo_ta) }}</textarea>
-                        @error('mo_ta')
+                        <label for="mota" class="form-label">Mô tả</label>
+                        <textarea class="form-control @error('mota') is-invalid @enderror"
+                                  id="mota" name="mota" rows="4">{{ old('mota', $category->mota) }}</textarea>
+                        @error('mota')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

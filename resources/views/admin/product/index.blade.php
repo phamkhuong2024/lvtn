@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý danh mục</title>
+    <title>Quản lý sản phẩm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
         <div class="row mb-4">
             <div class="col">
-                <h2>Quản lý danh mục</h2>
+                <h2>Quản lý sản phẩm</h2>
             </div>
             <div class="col text-end">
-                <a href="{{ route('category.create') }}" class="btn btn-primary">Thêm danh mục mới</a>
+                <a href="{{ route('product.create') }}" class="btn btn-primary">Thêm sản phẩm</a>
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Về dashboard</a>
             </div>
         </div>
@@ -27,26 +27,34 @@
 
         <div class="card">
             <div class="card-body">
-                <table class="table table-striped">
+                <table class="table table-striped align-middle">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Tên danh mục</th>
-                            <th>Mô tả</th>
-                            <th>Ngày tạo</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá bán</th>
+                            <th>Trạng thái</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($categories as $category)
+                        @forelse($products as $product)
                             <tr>
-                                <td>{{ $category->id }}</td>
-                                <td>{{ $category->ten }}</td>
-                                <td>{{ Str::limit($category->mota, 50) }}</td>
-                                <td>{{ $category->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $product->id }}</td>
+                                <td>{{ $product->ten }}</td>
+                                <td>{{ $product->category?->ten ?? 'Chưa phân loại' }}</td>
+                                <td>{{ number_format($product->giaban, 0, ',', '.') }}đ</td>
                                 <td>
-                                    <a href="{{ route('category.edit', $category->id) }}" class="btn btn-sm btn-warning">Sửa</a>
-                                    <form action="{{ route('category.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
+                                    @if($product->trangthai)
+                                        <span class="badge bg-success">Hiển thị</span>
+                                    @else
+                                        <span class="badge bg-secondary">Ẩn</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('product.edit', $product->id) }}" class="btn btn-sm btn-warning">Sửa</a>
+                                    <form action="{{ route('product.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
@@ -55,14 +63,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center">Chưa có danh mục nào</td>
+                                <td colspan="6" class="text-center">Chưa có sản phẩm nào</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
 
                 <div class="mt-3">
-                    {{ $categories->links() }}
+                    {{ $products->links() }}
                 </div>
             </div>
         </div>

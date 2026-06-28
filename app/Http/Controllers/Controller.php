@@ -2,13 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Product;
 
 class Controller
 {
-    function index()
+    public function index()
     {
-        $user = User::find(1);
-        return view('login', compact('user'));
+        return view('login');
+    }
+
+    public function register()
+    {
+        return view('register');
+    }
+
+    public function adminDashboard()
+    {
+        return view('admin.dashboard');
+    }
+
+    public function products()
+    {
+        $products = Product::where('trangthai', true)
+            ->latest()
+            ->get();
+
+        return view('products', compact('products'));
     }
 }

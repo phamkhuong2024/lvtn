@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
+        $categories = Schema::hasTable('danh_muc')
+            ? Category::latest()->paginate(10)
+            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+
         return view('admin.category.index', compact('categories'));
     }
 
@@ -20,14 +24,18 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        if (!Schema::hasTable('danh_muc')) {
+            return redirect()->back()->with('error', 'Vui lòng chạy migration để tạo bảng danh mục trước.');
+        }
+
         $request->validate([
-            'ten_danh_muc' => 'required|string|max:255',
-            'mo_ta' => 'nullable|string',
+            'ten' => 'required|string|max:255',
+            'mota' => 'nullable|string',
         ]);
 
         Category::create([
-            'ten_danh_muc' => $request->ten_danh_muc,
-            'mo_ta' => $request->mo_ta,
+            'ten' => $request->ten,
+            'mota' => $request->mota,
         ]);
 
         return redirect()->route('category.index')->with('success', 'Thêm danh mục thành công!');
@@ -36,20 +44,25 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
+
         return view('admin.category.edit', compact('category'));
     }
 
     public function update(Request $request, $id)
     {
+        if (!Schema::hasTable('danh_muc')) {
+            return redirect()->back()->with('error', 'Vui lòng chạy migration để tạo bảng danh mục trước.');
+        }
+
         $request->validate([
-            'ten_danh_muc' => 'required|string|max:255',
-            'mo_ta' => 'nullable|string',
+            'ten' => 'required|string|max:255',
+            'mota' => 'nullable|string',
         ]);
 
         $category = Category::findOrFail($id);
         $category->update([
-            'ten_danh_muc' => $request->ten_danh_muc,
-            'mo_ta' => $request->mo_ta,
+            'ten' => $request->ten,
+            'mota' => $request->mota,
         ]);
 
         return redirect()->route('category.index')->with('success', 'Cập nhật danh mục thành công!');

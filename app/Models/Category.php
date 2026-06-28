@@ -12,7 +12,7 @@ class Category extends Model
     protected $table = 'danh_muc';
 
     protected $fillable = [
-        'ten_danh_muc',
-        'mo_ta',
+        'ten',
+        'mota',
     ];
 }
