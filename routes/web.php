@@ -11,10 +11,11 @@ use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/login',[Controller::class, 'index'])->name('login');
-Route::get('/register',[Controller::class, 'register'])->name('register');
-Route::post('/login',[LoginController::class, 'login'])->name('login.post');
+
+Route::get('/login',[Controller::class, 'index'])->name('login')->middleware('guest');
+Route::post('/login',[LoginController::class, 'login'])->name('login.post')->middleware('guest');
 Route::get('/logout',[LoginController::class, 'logout'])->name('logout');
+Route::get('/register',[Controller::class, 'register'])->name('register')->middleware('guest');
 Route::get('/products',[Controller::class, 'products'])->name('products');
 
 // Admin routes
