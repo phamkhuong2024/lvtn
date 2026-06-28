@@ -24,7 +24,47 @@
                 </nav>
                 <div class="header-actions">
                     <a href="#" class="icon-link"><i class="fas fa-search"></i></a>
-                    <a href="{{ route('login') }}" class="icon-link"><i class="fas fa-user"></i></a>
+                    
+                    @if(Auth::guard('admin')->check())
+                        <div class="user-dropdown">
+                            <a href="#" class="icon-link user-link">
+                                <i class="fas fa-user"></i>
+                                <span>{{ Auth::guard('admin')->user()->tenad }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="{{ route('admin.profile') }}">Hồ sơ</a>
+                                <a href="{{ route('logout') }}">Đăng xuất</a>
+                            </div>
+                        </div>
+                    @elseif(Auth::guard('nhanvien')->check())
+                        <div class="user-dropdown">
+                            <a href="#" class="icon-link user-link">
+                                <i class="fas fa-user"></i>
+                                <span>{{ Auth::guard('nhanvien')->user()->tennv }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="{{ route('nhanvien.profile') }}">Hồ sơ</a>
+                                <a href="{{ route('logout') }}">Đăng xuất</a>
+                            </div>
+                        </div>
+                    @elseif(Auth::guard('khachhang')->check())
+                        <div class="user-dropdown">
+                            <a href="#" class="icon-link user-link">
+                                <i class="fas fa-user"></i>
+                                <span>{{ Auth::guard('khachhang')->user()->ten }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="{{ route('khachhang.profile') }}">Hồ sơ</a>
+                                <a href="{{ route('logout') }}">Đăng xuất</a>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="icon-link"><i class="fas fa-user"></i></a>
+                    @endif
+                    
                     <a href="#" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
                 </div>
             </div>

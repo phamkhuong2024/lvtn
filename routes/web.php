@@ -5,15 +5,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\NhanVienController;
+use App\Http\Controllers\KhachHangController;
+use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/login',[Controller::class, 'index'])->name('login');
 Route::get('/register',[Controller::class, 'register'])->name('register');
+Route::post('/login',[LoginController::class, 'login'])->name('login.post');
+Route::get('/logout',[LoginController::class, 'logout'])->name('logout');
 Route::get('/products',[Controller::class, 'products'])->name('products');
-Route::get('/admin/dashboard',[Controller::class, 'adminDashboard'])->name('admin.dashboard');
 
-Route::prefix('admin')->group(function () {
+// Admin routes
+Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group(function () {
+    Route::get('/dashboard',[Controller::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
+    Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+
     Route::get('/category', [CategoryController::class, 'index'])->name('category.index');
     Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create');
     Route::post('/category', [CategoryController::class, 'store'])->name('category.store');
@@ -27,4 +36,16 @@ Route::prefix('admin')->group(function () {
     Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('product.edit');
     Route::put('/products/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
+});
+
+// Nhan vien routes
+Route::prefix('nhanvien')->middleware(\App\Http\Middleware\AuthAdmin::class)->group(function () {
+    Route::get('/profile', [NhanVienController::class, 'profile'])->name('nhanvien.profile');
+    Route::post('/profile', [NhanVienController::class, 'updateProfile'])->name('nhanvien.profile.update');
+});
+
+// Khach hang routes
+Route::prefix('khachhang')->group(function () {
+    Route::get('/profile', [KhachHangController::class, 'profile'])->name('khachhang.profile');
+    Route::post('/profile', [KhachHangController::class, 'updateProfile'])->name('khachhang.profile.update');
 });

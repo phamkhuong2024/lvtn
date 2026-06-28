@@ -1098,6 +1098,57 @@ img {
 }
 
 .hero-card.large {
+    grid-row: span 2;
+}
+
+/* User Dropdown Styles */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown .user-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.user-dropdown .user-link span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    min-width: 180px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    margin-top: 12px;
+    padding: 8px 0;
+    z-index: 1000;
+}
+
+.user-dropdown .dropdown-menu a {
+    display: block;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+.user-dropdown .dropdown-menu a:hover {
+    background: #f8f8f8;
+}
+
+.user-dropdown.active .dropdown-menu {
+    display: block;
+}
     min-height: 420px;
 }
 

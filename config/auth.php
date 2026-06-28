@@ -42,6 +42,21 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+
+        'nhanvien' => [
+            'driver' => 'session',
+            'provider' => 'nhanviens',
+        ],
+
+        'khachhang' => [
+            'driver' => 'session',
+            'provider' => 'khachhangs',
+        ],
     ],
 
     /*
@@ -65,6 +80,21 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\Admin::class,
+        ],
+
+        'nhanviens' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\NhanVien::class,
+        ],
+
+        'khachhangs' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\KhachHang::class,
         ],
 
         // 'users' => [
