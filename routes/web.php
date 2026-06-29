@@ -39,6 +39,7 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::get('/products', [ProductController::class, 'index'])->name('product.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
     Route::post('/products', [ProductController::class, 'store'])->name('product.store');
+    Route::get('/products/get-product-types/{categoryId}', [ProductController::class, 'getProductTypes'])->name('product.getProductTypes');
     Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('product.edit');
     Route::put('/products/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('product.destroy');

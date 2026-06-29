@@ -22,12 +22,12 @@ return new class extends Migration
 
             $table->foreignId('loaisanphamid')
                 ->constrained('loai_san_pham')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->string('ten');
 
-            $table->decimal('giaban', 12, 2);
-            $table->decimal('giagiam', 12, 2)->nullable();
+            $table->decimal('giaban', 12, 3);
+            $table->decimal('giagiam', 12, 3)->nullable();
 
             $table->string('hinhanh')->nullable();
             $table->text('mota')->nullable();

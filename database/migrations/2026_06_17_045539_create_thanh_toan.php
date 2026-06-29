@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->string('phuongthuc');
 
-            $table->decimal('sotien', 12, 2);
+            $table->decimal('sotien', 12, 3);
 
             $table->enum('trangthai', [
                 'cho_thanh_toan',

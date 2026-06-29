@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Color;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductType;
+use App\Models\ProductVariant;
+use App\Models\Size;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -39,100 +45,219 @@ class ProductController extends Controller
         $categories = Schema::hasTable('danh_muc')
             ? Category::latest()->get()
             : collect();
+        
+        $colors = Schema::hasTable('mau_sac') ? Color::all() : collect();
+        $sizes = Schema::hasTable('kich_co') ? Size::all() : collect();
 
-        return view('admin.product.create', compact('categories'));
+        return view('admin.product.create', compact('categories', 'colors', 'sizes'));
     }
 
     public function store(Request $request)
     {
-        if (!Schema::hasTable('san_pham') || !Schema::hasTable('danh_muc') || !Schema::hasTable('loai_san_pham')) {
-            return redirect()->back()->with('error', 'Vui lòng chạy migration để tạo bảng sản phẩm trước.');
-        }
-
-        $request->validate([
+        $validated = $request->validate([
             'danhmucid' => 'required|exists:danh_muc,id',
+            'loaisanphamid' => 'required|exists:loai_san_pham,id',
             'ten' => 'required|string|max:255',
             'giaban' => 'required|numeric|min:0',
             'giagiam' => 'nullable|numeric|min:0',
-            'hinhanh' => 'nullable|string|max:255',
+            'hinhanh' => 'nullable|image|max:2048',
             'mota' => 'nullable|string',
-            'noibat' => 'nullable|boolean',
-            'trangthai' => 'nullable|boolean',
+            'noibat' => 'boolean',
+            'trangthai' => 'boolean',
+            'colors' => 'required|array',
+            'colors.*.id' => 'required|exists:mau_sac,id',
+            'colors.*.images' => 'required|array',
+            'colors.*.images.*' => 'image|max:2048',
+            'variants' => 'required|array',
+            'variants.*.mausacid' => 'required|exists:mau_sac,id',
+            'variants.*.kichcoid' => 'required|exists:kich_co,id',
+            'variants.*.soluong' => 'required|integer|min:0',
+            'variants.*.gia' => 'required|numeric|min:0',
         ]);
 
-        $productType = ProductType::firstOrCreate(
-            ['danhmucid' => $request->danhmucid, 'ten' => 'Mặc định'],
-            ['mota' => 'Loại mặc định được tạo tự động', 'noibat' => false]
-        );
+        DB::beginTransaction();
+        try {
+            $productData = [
+                'danhmucid' => $validated['danhmucid'],
+                'loaisanphamid' => $validated['loaisanphamid'],
+                'ten' => $validated['ten'],
+                'giaban' => $validated['giaban'],
+                'giagiam' => $validated['giagiam'] ?? null,
+                'mota' => $validated['mota'] ?? null,
+                'noibat' => $request->has('noibat'),
+                'trangthai' => $request->has('trangthai'),
+            ];
 
-        Product::create([
-            'danhmucid' => $request->danhmucid,
-            'loaisanphamid' => $productType->id,
-            'ten' => $request->ten,
-            'giaban' => $request->giaban,
-            'giagiam' => $request->giagiam,
-            'hinhanh' => $request->hinhanh,
-            'mota' => $request->mota,
-            'noibat' => $request->boolean('noibat'),
-            'trangthai' => $request->boolean('trangthai', true),
-        ]);
+            if ($request->hasFile('hinhanh')) {
+                $path = $request->file('hinhanh')->store('products', 'public');
+                $productData['hinhanh'] = $path;
+            }
 
-        return redirect()->route('product.index')->with('success', 'Thêm sản phẩm thành công!');
+            $product = Product::create($productData);
+
+            if ($request->has('colors')) {
+                foreach ($request->colors as $colorData) {
+                    if (isset($colorData['images'])) {
+                        foreach ($colorData['images'] as $image) {
+                            $path = $image->store('product-colors', 'public');
+                            ProductImage::create([
+                                'sanphamid' => $product->id,
+                                'mausacid' => $colorData['id'],
+                                'hinhanh' => $path,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            if ($request->has('variants')) {
+                foreach ($request->variants as $variant) {
+                    ProductVariant::create([
+                        'sanphamid' => $product->id,
+                        'mausacid' => $variant['mausacid'],
+                        'kichcoid' => $variant['kichcoid'],
+                        'soluong' => $variant['soluong'],
+                        'gia' => $variant['gia'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('product.index')->with('success', 'Sản phẩm đã được tạo thành công!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withInput()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
     }
 
     public function edit($id)
     {
-        $product = Product::findOrFail($id);
-        $categories = Schema::hasTable('danh_muc')
-            ? Category::latest()->get()
+        $product = Product::with(['category', 'type', 'variants.mauSac', 'variants.kichCo', 'images.mauSac'])
+            ->findOrFail($id);
+        
+        $categories = Schema::hasTable('danh_muc') ? Category::all() : collect();
+        $productTypes = Schema::hasTable('loai_san_pham') 
+            ? ProductType::where('danhmucid', $product->danhmucid)->get() 
             : collect();
+        $colors = Schema::hasTable('mau_sac') ? Color::all() : collect();
+        $sizes = Schema::hasTable('kich_co') ? Size::all() : collect();
 
-        return view('admin.product.edit', compact('product', 'categories'));
+        return view('admin.product.edit', compact('product', 'categories', 'productTypes', 'colors', 'sizes'));
     }
 
     public function update(Request $request, $id)
     {
-        if (!Schema::hasTable('san_pham') || !Schema::hasTable('danh_muc') || !Schema::hasTable('loai_san_pham')) {
-            return redirect()->back()->with('error', 'Vui lòng chạy migration để tạo bảng sản phẩm trước.');
-        }
+        $product = Product::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'danhmucid' => 'required|exists:danh_muc,id',
+            'loaisanphamid' => 'required|exists:loai_san_pham,id',
             'ten' => 'required|string|max:255',
             'giaban' => 'required|numeric|min:0',
             'giagiam' => 'nullable|numeric|min:0',
-            'hinhanh' => 'nullable|string|max:255',
+            'hinhanh' => 'nullable|image|max:2048',
             'mota' => 'nullable|string',
-            'noibat' => 'nullable|boolean',
-            'trangthai' => 'nullable|boolean',
+            'noibat' => 'boolean',
+            'trangthai' => 'boolean',
+            'colors' => 'required|array',
+            'colors.*.id' => 'required|exists:mau_sac,id',
+            'colors.*.images' => 'nullable|array',
+            'colors.*.images.*' => 'image|max:2048',
+            'variants' => 'required|array',
+            'variants.*.mausacid' => 'required|exists:mau_sac,id',
+            'variants.*.kichcoid' => 'required|exists:kich_co,id',
+            'variants.*.soluong' => 'required|integer|min:0',
+            'variants.*.gia' => 'required|numeric|min:0',
         ]);
 
-        $product = Product::findOrFail($id);
-        $productType = ProductType::firstOrCreate(
-            ['danhmucid' => $request->danhmucid, 'ten' => 'Mặc định'],
-            ['mota' => 'Loại mặc định được tạo tự động', 'noibat' => false]
-        );
+        DB::beginTransaction();
+        try {
+            $productData = [
+                'danhmucid' => $validated['danhmucid'],
+                'loaisanphamid' => $validated['loaisanphamid'],
+                'ten' => $validated['ten'],
+                'giaban' => $validated['giaban'],
+                'giagiam' => $validated['giagiam'] ?? null,
+                'mota' => $validated['mota'] ?? null,
+                'noibat' => $request->has('noibat'),
+                'trangthai' => $request->has('trangthai'),
+            ];
 
-        $product->update([
-            'danhmucid' => $request->danhmucid,
-            'loaisanphamid' => $productType->id,
-            'ten' => $request->ten,
-            'giaban' => $request->giaban,
-            'giagiam' => $request->giagiam,
-            'hinhanh' => $request->hinhanh,
-            'mota' => $request->mota,
-            'noibat' => $request->boolean('noibat'),
-            'trangthai' => $request->boolean('trangthai', true),
-        ]);
+            if ($request->hasFile('hinhanh')) {
+                if ($product->hinhanh) {
+                    Storage::disk('public')->delete($product->hinhanh);
+                }
+                $path = $request->file('hinhanh')->store('products', 'public');
+                $productData['hinhanh'] = $path;
+            }
 
-        return redirect()->route('product.index')->with('success', 'Cập nhật sản phẩm thành công!');
+            $product->update($productData);
+            // Delete images for colors not provided in the request
+            $requestColorIds = collect($request->colors)
+            ->pluck('id')
+            ->toArray();
+           ProductImage::where('sanphamid', $product->id)
+            ->whereNotIn('mausacid', $requestColorIds)
+            ->delete();
+            // Update images per color
+            if ($request->has('colors')) {
+                foreach ($request->colors as $colorData) {
+                    // Only update images for this color if new images are provided
+                    if (isset($colorData['images']) && !empty($colorData['images'])) {
+                        // Delete old images for this specific color only
+                        $oldImages = $product->images()->where('mausacid', $colorData['id'])->get();
+                        foreach ($oldImages as $image) {
+                            Storage::disk('public')->delete($image->hinhanh);
+                            $image->delete();
+                        }
+
+                        // Create new images for this color
+                        foreach ($colorData['images'] as $image) {
+                            $path = $image->store('product-colors', 'public');
+                            ProductImage::create([
+                                'sanphamid' => $product->id,    
+                                'mausacid' => $colorData['id'],
+                                'hinhanh' => $path,
+                            ]);
+                        }
+                    }
+                    // If no new images for this color, keep existing images
+                }
+            }
+
+            // Always recreate variants
+            $product->variants()->delete();
+
+            if ($request->has('variants')) {
+                foreach ($request->variants as $variant) {
+                    ProductVariant::create([
+                        'sanphamid' => $product->id,
+                        'mausacid' => $variant['mausacid'],
+                        'kichcoid' => $variant['kichcoid'],
+                        'soluong' => $variant['soluong'],
+                        'gia' => $variant['gia'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('product.index')->with('success', 'Sản phẩm đã được cập nhật thành công!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withInput()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+
+    public function getProductTypes($categoryId)
+    {
+        $productTypes = ProductType::where('danhmucid', $categoryId)->get();
+        return response()->json($productTypes);
     }
 
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
         $product->delete();
-
-        return redirect()->route('product.index')->with('success', 'Xóa sản phẩm thành công!');
+        return redirect()->route('product.index')->with('success', 'Sản phẩm đã được xóa thành công!');
     }
 }

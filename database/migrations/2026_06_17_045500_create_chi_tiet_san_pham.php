@@ -28,7 +28,7 @@ return new class extends Migration
                     ->restrictOnDelete();
                 
                 $table->integer('soluong')->default(0);
-                $table->decimal('gia', 12, 2);
+                $table->decimal('gia', 12, 3);
 
                 $table->timestamps();
 

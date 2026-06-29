@@ -38,9 +38,9 @@ return new class extends Migration
     $table->string('quan')->nullable();
     $table->string('thanhpho')->nullable();
 
-    $table->decimal('phigiaohang', 12, 2)->default(0);
-    $table->decimal('tonggia', 12, 2);
-    $table->decimal('giamgia', 12, 2)->default(0);
+    $table->decimal('phigiaohang', 12, 3)->default(0);
+    $table->decimal('tonggia', 12, 3);
+    $table->decimal('giamgia', 12, 3)->default(0);
 
     $table->string('mavandon')->nullable();
 

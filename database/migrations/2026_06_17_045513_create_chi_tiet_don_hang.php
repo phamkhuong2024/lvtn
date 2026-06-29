@@ -24,7 +24,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->integer('soluong');
-            $table->decimal('dongia', 12, 2);
+            $table->decimal('dongia', 12, 3);
 
             $table->timestamps();
         });

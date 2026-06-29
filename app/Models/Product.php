@@ -39,4 +39,14 @@ class Product extends Model
     {
         return $this->belongsTo(ProductType::class, 'loaisanphamid');
     }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'sanphamid');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'sanphamid');
+    }
 }

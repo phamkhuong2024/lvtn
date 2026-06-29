@@ -22,9 +22,9 @@ return new class extends Migration
                     'so_tien'
                 ]);
 
-                $table->decimal('giatrigiam', 12, 2);
+                $table->decimal('giatrigiam', 12, 3);
 
-                $table->decimal('giatridonhang', 12, 2)
+                $table->decimal('giatridonhang', 12, 3)
                     ->nullable();
 
                 $table->date('ngaybatdau');
