@@ -90,7 +90,7 @@
                             <label for="hinhanh" class="form-label">Hình ảnh đại diện</label>
                             @if($product->hinhanh)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $product->hinhanh) }}" class="img-thumbnail" style="max-width: 200px;">
+                                    <img src="{{ $product->hinhanh }}" class="img-thumbnail" style="max-width: 200px;">
                                 </div>
                             @endif
                             <input type="file" class="form-control" id="hinhanh" name="hinhanh" accept="image/*">
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const imgDiv = document.createElement('div');
                     imgDiv.className = 'position-relative';
                     imgDiv.innerHTML = `
-                        <img src="/storage/${img.hinhanh}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                        <img src="${img.hinhanh}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                     `;
                     existingContainer.appendChild(imgDiv);
                 });
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const newImages = colorImages[color.id] || [];
             
             if (existingImgs.length > 0) {
-                imagePreview = `<img src="/storage/${existingImgs[0].hinhanh}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">`;
+                imagePreview = `<img src="${existingImgs[0].hinhanh}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">`;
             } else if (newImages.length > 0) {
                 imagePreview = `<img src="${URL.createObjectURL(newImages[0])}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">`;
             }

@@ -12,7 +12,7 @@ use App\Models\Size;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductController extends Controller
 {
@@ -89,8 +89,16 @@ class ProductController extends Controller
             ];
 
             if ($request->hasFile('hinhanh')) {
-                $path = $request->file('hinhanh')->store('products', 'public');
-                $productData['hinhanh'] = $path;
+                try {
+                    $uploadedFile = Cloudinary::uploadApi()->upload(
+                        $request->file('hinhanh')->getRealPath(),
+                        ['verify' => false]
+                    );
+                    $productData['hinhanh'] = $uploadedFile['secure_url'];
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return back()->withInput()->with('error', 'Lỗi tải ảnh lên: ' . $e->getMessage());
+                }
             }
 
             $product = Product::create($productData);
@@ -99,12 +107,21 @@ class ProductController extends Controller
                 foreach ($request->colors as $colorData) {
                     if (isset($colorData['images'])) {
                         foreach ($colorData['images'] as $image) {
-                            $path = $image->store('product-colors', 'public');
-                            ProductImage::create([
-                                'sanphamid' => $product->id,
-                                'mausacid' => $colorData['id'],
-                                'hinhanh' => $path,
-                            ]);
+                            try {
+                                $uploadedFile = Cloudinary::uploadApi()->upload(
+                                    $image->getRealPath(),
+                                    ['verify' => false]
+                                );
+                                ProductImage::create([
+                                    'sanphamid' => $product->id,
+                                    'mausacid' => $colorData['id'],
+                                    'hinhanh' => $uploadedFile['secure_url'],
+                                    'public_id' => $uploadedFile['public_id'],
+                                ]);
+                            } catch (\Exception $e) {
+                                DB::rollback();
+                                return back()->withInput()->with('error', 'Lỗi tải ảnh màu lên: ' . $e->getMessage());
+                            }
                         }
                     }
                 }
@@ -184,11 +201,16 @@ class ProductController extends Controller
             ];
 
             if ($request->hasFile('hinhanh')) {
-                if ($product->hinhanh) {
-                    Storage::disk('public')->delete($product->hinhanh);
+                try {
+                    $uploadedFile = Cloudinary::uploadApi()->upload(
+                        $request->file('hinhanh')->getRealPath(),
+                        ['verify' => false]
+                    );
+                    $productData['hinhanh'] = $uploadedFile['secure_url'];
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return back()->withInput()->with('error', 'Lỗi tải ảnh lên: ' . $e->getMessage());
                 }
-                $path = $request->file('hinhanh')->store('products', 'public');
-                $productData['hinhanh'] = $path;
             }
 
             $product->update($productData);
@@ -205,20 +227,25 @@ class ProductController extends Controller
                     // Only update images for this color if new images are provided
                     if (isset($colorData['images']) && !empty($colorData['images'])) {
                         // Delete old images for this specific color only
-                        $oldImages = $product->images()->where('mausacid', $colorData['id'])->get();
-                        foreach ($oldImages as $image) {
-                            Storage::disk('public')->delete($image->hinhanh);
-                            $image->delete();
-                        }
+                        $product->images()->where('mausacid', $colorData['id'])->delete();
 
                         // Create new images for this color
                         foreach ($colorData['images'] as $image) {
-                            $path = $image->store('product-colors', 'public');
-                            ProductImage::create([
-                                'sanphamid' => $product->id,    
-                                'mausacid' => $colorData['id'],
-                                'hinhanh' => $path,
-                            ]);
+                            try {
+                                $uploadedFile = Cloudinary::uploadApi()->upload(
+                                    $image->getRealPath(),
+                                    ['verify' => false]
+                                );
+                                ProductImage::create([
+                                    'sanphamid' => $product->id,    
+                                    'mausacid' => $colorData['id'],
+                                    'hinhanh' => $uploadedFile['secure_url'],
+                                    'public_id' => $uploadedFile['public_id'],
+                                ]);
+                            } catch (\Exception $e) {
+                                DB::rollback();
+                                return back()->withInput()->with('error', 'Lỗi tải ảnh màu lên: ' . $e->getMessage());
+                            }
                         }
                     }
                     // If no new images for this color, keep existing images
