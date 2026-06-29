@@ -9,13 +9,15 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/login',[Controller::class, 'index'])->name('login')->middleware('guest');
 Route::post('/login',[LoginController::class, 'login'])->name('login.post')->middleware('guest');
 Route::get('/logout',[LoginController::class, 'logout'])->name('logout');
-Route::get('/register',[Controller::class, 'register'])->name('register')->middleware('guest');
+Route::get('/register',[RegisterController::class, 'showRegistrationForm'])->name('register')->middleware('guest');
+Route::post('/register',[RegisterController::class, 'register'])->name('register.post')->middleware('guest');
 Route::get('/products',[Controller::class, 'products'])->name('products');
 
 // Admin routes

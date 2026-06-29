@@ -11,11 +11,6 @@ class Controller
         return view('login');
     }
 
-    public function register()
-    {
-        return view('register');
-    }
-
     public function adminDashboard()
     {
         return view('admin.dashboard');
