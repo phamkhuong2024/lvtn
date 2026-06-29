@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,8 +23,8 @@ class AdminController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $admin = Auth::guard('admin')->user();
-
+        $user = Auth::guard('admin')->user();
+       $admin = Admin::findOrFail($user->id);
         $request->validate([
             'tenad' => 'required|string|max:255',
             'email' => 'required|email|unique:admin,email,' . $admin->id,

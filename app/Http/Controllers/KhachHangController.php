@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KhachHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -44,8 +45,8 @@ class KhachHangController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $khachhang = Auth::guard('khachhang')->user();
-
+        $user = Auth::guard('khachhang')->user();
+       $khachhang = KhachHang::findOrFail($user->id);
         $request->validate([
             'ten' => 'required|string|max:255',
             'email' => 'required|email|unique:khach_hang,email,' . $khachhang->id,

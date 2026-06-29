@@ -62,6 +62,7 @@
                     name="email" 
                     value="{{ old('email', $nhanvien->email) }}"
                     required
+                    disabled
                     style="width: 100%; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; transition: border-color 0.3s;"
                     onfocus="this.style.borderColor='#28a745'"
                     onblur="this.style.borderColor='#ddd'"
@@ -196,7 +197,7 @@
         <p style="color: #666; margin-bottom: 20px;">
             Đăng xuất khỏi tài khoản của bạn
         </p>
-        <form action="{{ route('nhanvien.logout') }}" method="POST" style="display: inline;">
+        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
             @csrf
             <button 
                 type="submit" 

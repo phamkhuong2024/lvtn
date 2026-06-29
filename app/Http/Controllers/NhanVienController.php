@@ -138,11 +138,10 @@ class NhanVienController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $nhanvien = Auth::guard('nhanvien')->user();
-
+        $user = Auth::guard('nhanvien')->user();
+       $nhanvien = NhanVien::findOrFail($user->id);
         $request->validate([
             'tennv' => 'required|string|max:255',
-            'email' => 'required|email|unique:nhan_vien,email,' . $nhanvien->id,
             'sdt' => 'nullable|string|max:15',
             'gioitinh' => 'nullable|string',
             'diachi' => 'nullable|string|max:255',
@@ -150,7 +149,6 @@ class NhanVienController extends Controller
         ]);
 
         $nhanvien->tennv = $request->tennv;
-        $nhanvien->email = $request->email;
         $nhanvien->sdt = $request->sdt;
         $nhanvien->gioitinh = $request->gioitinh;
         $nhanvien->diachi = $request->diachi;
