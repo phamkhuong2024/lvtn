@@ -10,12 +10,27 @@ use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Schema::hasTable('san_pham')
-            ? Product::with(['category', 'type'])->latest()->paginate(10)
-            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+        if (!Schema::hasTable('san_pham')) {
+            $products = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+            return view('admin.product.index', compact('products'));
+        }
 
+        $query = Product::with(['category', 'type']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('ten', 'like', "%{$search}%")
+                  ->orWhere('mota', 'like', "%{$search}%")
+                  ->orWhereHas('category', function($q) use ($search) {
+                      $q->where('ten', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $products = $query->latest()->paginate(10)->withQueryString();
         return view('admin.product.index', compact('products'));
     }
 

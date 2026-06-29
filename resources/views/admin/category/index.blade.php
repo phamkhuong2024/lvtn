@@ -19,6 +19,24 @@
             </div>
         @endif
 
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form action="{{ route('category.index') }}" method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm danh mục...">
+                        <button type="submit" class="btn btn-primary">Tìm</button>
+                        @if(request('search'))
+                            <a href="{{ route('category.index') }}" class="btn btn-secondary">Xóa</a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="text-muted">Tổng số: <strong>{{ $categories->total() }}</strong> danh mục</span>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <table class="table table-striped">

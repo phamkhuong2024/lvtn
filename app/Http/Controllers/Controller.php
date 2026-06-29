@@ -6,10 +6,7 @@ use App\Models\Product;
 
 class Controller
 {
-    public function index()
-    {
-        return view('login');
-    }
+   
 
     public function adminDashboard()
     {

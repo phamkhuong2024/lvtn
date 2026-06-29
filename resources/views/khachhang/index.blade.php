@@ -181,21 +181,4 @@
                     </div>
                 </div>
 </div>
-
-<script>
-    // Simple client-side search
-    document.getElementById('searchInput').addEventListener('keyup', function() {
-        const searchValue = this.value.toLowerCase();
-        const tableRows = document.querySelectorAll('tbody tr');
-        
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            if (text.includes(searchValue)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    });
-</script>
 @endsection

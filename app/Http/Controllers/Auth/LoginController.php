@@ -12,6 +12,10 @@ use App\Models\KhachHang;
 
 class LoginController extends Controller
 {
+     public function showLoginForm()
+    {
+        return view('login');
+    }
     /**
      * Handle login request
      */

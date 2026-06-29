@@ -8,12 +8,24 @@ use Illuminate\Support\Facades\Schema;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Schema::hasTable('danh_muc')
-            ? Category::latest()->paginate(10)
-            : new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+        if (!Schema::hasTable('danh_muc')) {
+            $categories = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+            return view('admin.category.index', compact('categories'));
+        }
 
+        $query = Category::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('ten', 'like', "%{$search}%")
+                  ->orWhere('mota', 'like', "%{$search}%");
+            });
+        }
+
+        $categories = $query->latest()->paginate(10)->withQueryString();
         return view('admin.category.index', compact('categories'));
     }
 

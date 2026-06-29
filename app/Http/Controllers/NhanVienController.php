@@ -12,9 +12,22 @@ class NhanVienController extends Controller
     /**
      * Display a listing of nhan vien
      */
-    public function index()
+    public function index(Request $request)
     {
-        $nhanviens = NhanVien::orderBy('created_at', 'desc')->paginate(10);
+        $query = NhanVien::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('tennv', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('sdt', 'like', "%{$search}%")
+                  ->orWhere('chucvu', 'like', "%{$search}%")
+                  ->orWhere('diachi', 'like', "%{$search}%");
+            });
+        }
+
+        $nhanviens = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
         return view('nhanvien.index', compact('nhanviens'));
     }
 

@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/login',[Controller::class, 'index'])->name('login')->middleware('guest');
+Route::get('/login',[LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login',[LoginController::class, 'login'])->name('login.post')->middleware('guest');
 Route::get('/logout',[LoginController::class, 'logout'])->name('logout');
 Route::get('/register',[RegisterController::class, 'showRegistrationForm'])->name('register')->middleware('guest');

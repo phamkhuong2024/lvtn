@@ -18,6 +18,24 @@
         </div>
     @endif
 
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form action="{{ route('nhanvien.index') }}" method="GET">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm nhân viên...">
+                    <button type="submit" class="btn btn-primary">Tìm</button>
+                    @if(request('search'))
+                        <a href="{{ route('nhanvien.index') }}" class="btn btn-secondary">Xóa</a>
+                    @endif
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="text-muted">Tổng số: <strong>{{ $nhanviens->total() }}</strong> nhân viên</span>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">

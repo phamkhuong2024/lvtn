@@ -11,9 +11,22 @@ class KhachHangController extends Controller
     /**
      * Show list of all khach hang
      */
-    public function index()
+    public function index(Request $request)
     {
-        $khachhangs = \App\Models\KhachHang::orderBy('id', 'desc')->paginate(10);
+        $query = \App\Models\KhachHang::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('ten', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('tendangnhap', 'like', "%{$search}%")
+                  ->orWhere('sdt', 'like', "%{$search}%")
+                  ->orWhere('diachi', 'like', "%{$search}%");
+            });
+        }
+
+        $khachhangs = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
         return view('khachhang.index', compact('khachhangs'));
     }
 
