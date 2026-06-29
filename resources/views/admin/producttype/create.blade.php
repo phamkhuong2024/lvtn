@@ -32,7 +32,6 @@
                 <label for="danhmucid" class="form-label fw-bold">
                     <i class="fas fa-folder"></i> Danh mục <span class="text-danger">*</span>
                 </label>
-                <x-cloudinary::widget>Upload Files</x-cloudinary::widget>
                 <select class="form-select form-select-lg @error('danhmucid') is-invalid @enderror" 
                         id="danhmucid" 
                         name="danhmucid" 

@@ -2,22 +2,21 @@
 
 @section('content')
 <div class="card shadow-sm">
-    <div class="card-header bg-warning text-dark">
+    <div class="card-header bg-primary text-white">
         <h4 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa loại sản phẩm</h4>
     </div>
     <div class="card-body">
         @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong><i class="fas fa-exclamation-circle"></i> Lỗi!</strong>
-                <p class="mb-0 mt-2">{{ session('error') }}</p>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong><i class="fas fa-exclamation-circle"></i> Lỗi!</strong>
+            <p class="mb-0 mt-2">{{ session('error') }}</p>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
         @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong><i class="fas fa-exclamation-triangle"></i> Có lỗi xảy ra!</strong>
-                <ul class="mb-0 mt-2">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong><i class="fas fa-exclamation-triangle"></i> Có lỗi xảy ra!</strong>
+            <ul class="mb-0 mt-2">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -25,7 +24,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
+        
         <form action="{{ route('producttype.update', $productType->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -41,7 +40,7 @@
                     <option value="">-- Chọn danh mục --</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id }}" 
-                                {{ old('danhmucid', $productType->danhmucid) == $category->id ? 'selected' : '' }}>
+                            {{ (old('danhmucid', $productType->danhmucid) == $category->id) ? 'selected' : '' }}>
                             {{ $category->ten }}
                         </option>
                     @endforeach
@@ -94,12 +93,13 @@
                 
                 @if($productType->hinhanh)
                 <div class="mb-3">
-                    <label class="form-label">Hình ảnh hiện tại:</label>
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-image"></i> Hình ảnh hiện tại
+                    </label>
                     <div class="card">
                         <div class="card-body text-center">
                             <img src="{{ $productType->hinhanh }}" 
                                  alt="{{ $productType->ten }}" 
-                                 id="current_image"
                                  style="max-width: 100%; max-height: 300px; border-radius: 8px;">
                         </div>
                     </div>
@@ -118,17 +118,17 @@
                     </div>
                 @enderror
                 <small class="form-text text-muted">
-                    <i class="fas fa-info-circle"></i> Định dạng: jpeg, png, jpg, gif. Kích thước tối đa: 2MB. Để trống nếu không muốn thay đổi.
+                    <i class="fas fa-info-circle"></i> Định dạng: jpeg, png, jpg, gif. Kích thước tối đa: 2MB. Bỏ trống nếu không muốn thay đổi.
                 </small>
                 
-                <!-- New Image Preview -->
-                <div id="new_image_preview_container" class="mt-3" style="display: none;">
+                <!-- Image Preview -->
+                <div id="image_preview_container" class="mt-3" style="display: none;">
                     <label class="form-label fw-bold">
                         <i class="fas fa-eye"></i> Xem trước hình ảnh mới
                     </label>
                     <div class="card">
                         <div class="card-body text-center">
-                            <img id="new_image_preview" 
+                            <img id="image_preview" 
                                  src="" 
                                  alt="Preview" 
                                  style="max-width: 100%; max-height: 300px; border-radius: 8px;">
@@ -154,24 +154,12 @@
                 </div>
             </div>
 
-            <!-- Info -->
-            <div class="alert alert-info mb-4">
-                <i class="fas fa-info-circle"></i> <strong>Thông tin:</strong> 
-                Loại sản phẩm này được tạo ngày {{ $productType->created_at->format('d/m/Y H:i') }}
-                @if($productType->updated_at != $productType->created_at)
-                    và được cập nhật lần cuối ngày {{ $productType->updated_at->format('d/m/Y H:i') }}
-                @endif
-            </div>
-
             <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-warning btn-lg">
+                <button type="submit" class="btn btn-primary btn-lg">
                     <i class="fas fa-save"></i> Cập nhật loại sản phẩm
                 </button>
                 <a href="{{ route('producttype.index') }}" class="btn btn-secondary btn-lg">
                     <i class="fas fa-arrow-left"></i> Quay lại
-                </a>
-                <a href="{{ route('producttype.create') }}" class="btn btn-success btn-lg ms-auto">
-                    <i class="fas fa-plus"></i> Thêm mới
                 </a>
             </div>
         </form>
@@ -181,25 +169,18 @@
 <script>
     function previewImage(event) {
         const file = event.target.files[0];
-        const newPreview = document.getElementById('new_image_preview');
-        const newPreviewContainer = document.getElementById('new_image_preview_container');
-        const currentImage = document.getElementById('current_image');
+        const preview = document.getElementById('image_preview');
+        const previewContainer = document.getElementById('image_preview_container');
         
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                newPreview.src = e.target.result;
-                newPreviewContainer.style.display = 'block';
-                if (currentImage) {
-                    currentImage.style.opacity = '0.5';
-                }
+                preview.src = e.target.result;
+                previewContainer.style.display = 'block';
             };
             reader.readAsDataURL(file);
         } else {
-            newPreviewContainer.style.display = 'none';
-            if (currentImage) {
-                currentImage.style.opacity = '1';
-            }
+            previewContainer.style.display = 'none';
         }
     }
 </script>
