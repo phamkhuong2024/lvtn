@@ -21,20 +21,21 @@
                 <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>
             </nav>
         </aside>
-
-        <header class="admin-topbar">
-            <div>
-                <p class="muted">Xin chào, Admin</p>
-                <h2>Dashboard quản trị</h2>
-            </div>
-            <div class="admin-user">
-                <i class="fas fa-user-circle"></i>
-                <span>Admin LK Fashion</span>
-            </div>
-        </header>
-        <main class="admin-main">
-        @yield('content')
-        </main>
+        <div class="d-flex flex-column h-md-100 justify-content-between w-100">
+            <header class="admin-topbar mx-4">
+                <div>
+                    <p class="muted">Xin chào, Admin</p>
+                    <h2>Dashboard quản trị</h2>
+                </div>
+                <div class="admin-user">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin LK Fashion</span>
+                </div>
+            </header>
+            <main class="admin-main">
+            @yield('content')
+            </main>
+        </div>
     </div>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

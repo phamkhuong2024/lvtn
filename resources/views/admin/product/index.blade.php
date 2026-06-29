@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sản phẩm</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+@extends('layouts.admin')
+
+@section('content')
     <div class="container mt-5">
         <div class="row mb-4">
             <div class="col">
                 <h2>Quản lý sản phẩm</h2>
             </div>
             <div class="col text-end">
-                <a href="{{ route('product.create') }}" class="btn btn-primary">Thêm sản phẩm</a>
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Về dashboard</a>
+                <a href="{{ route('product.create') }}" class="btn btn-success">Thêm sản phẩm</a>
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-info text-white">Về dashboard</a>
             </div>
         </div>
 
@@ -75,7 +69,4 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection

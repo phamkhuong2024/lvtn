@@ -1,7 +1,6 @@
+@extends('layouts.admin')
+
 @section('content')
-
-        <main class="admin-main">
-
             <section class="admin-stats">
                 <div class="stat-card">
                     <h3>Doanh thu hôm nay</h3>
@@ -105,5 +104,4 @@
                     </ul>
                 </div>
             </section>
-        </main>
 @endsection

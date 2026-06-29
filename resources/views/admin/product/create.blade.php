@@ -1,19 +1,13 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm sản phẩm mới</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+@extends('layouts.admin')
+
+@section('content')
     <div class="container mt-5">
         <div class="row mb-4">
             <div class="col">
                 <h2>Thêm sản phẩm mới</h2>
             </div>
             <div class="col text-end">
-                <a href="{{ route('product.index') }}" class="btn btn-secondary">Quay lại</a>
+                <a href="{{ route('product.index') }}" class="btn btn-info text-white">Quay lại</a>
             </div>
         </div>
 
@@ -92,14 +86,11 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ route('product.index') }}" class="btn btn-secondary">Hủy</a>
-                        <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+                        <a href="{{ route('product.index') }}" class="btn btn-warning">Hủy</a>
+                        <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection
