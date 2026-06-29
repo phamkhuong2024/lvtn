@@ -15,4 +15,9 @@ class Category extends Model
         'ten',
         'mota',
     ];
+
+    public function productTypes()
+    {
+        return $this->hasMany(ProductType::class, 'danhmucid');
+    }
 }

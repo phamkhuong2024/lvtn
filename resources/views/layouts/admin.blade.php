@@ -16,6 +16,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="active"><i class="fas fa-home"></i> Tổng quan</a>
                 <a href="{{ route('category.index') }}"><i class="fas fa-list"></i> Danh mục</a>
                 
+                <a href="{{ route('producttype.index') }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
                 <!-- Sản phẩm Accordion -->
                 <button type="button" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false" class="dropdown-toggle">
                     <i class="fas fa-box"></i> Sản phẩm

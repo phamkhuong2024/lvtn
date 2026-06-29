@@ -16,7 +16,7 @@ return new class extends Migration
                $table->id();
                 $table->foreignId('danhmucid')
                     ->constrained('danh_muc')
-                    ->cascadeOnDelete();
+                    ->restrictOnDelete();
 
                 $table->string('ten');
                 $table->text('mota')->nullable();

@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SizeController;
+use App\Http\Controllers\ProductTypeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\KhachHangController;
@@ -55,6 +56,13 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::get('/size/{id}/edit', [SizeController::class, 'edit'])->name('size.edit');
     Route::put('/size/{id}', [SizeController::class, 'update'])->name('size.update');
     Route::delete('/size/{id}', [SizeController::class, 'destroy'])->name('size.destroy');
+
+    Route::get('/producttype', [ProductTypeController::class, 'index'])->name('producttype.index');
+    Route::get('/producttype/create', [ProductTypeController::class, 'create'])->name('producttype.create');
+    Route::post('/producttype', [ProductTypeController::class, 'store'])->name('producttype.store');
+    Route::get('/producttype/{id}/edit', [ProductTypeController::class, 'edit'])->name('producttype.edit');
+    Route::put('/producttype/{id}', [ProductTypeController::class, 'update'])->name('producttype.update');
+    Route::delete('/producttype/{id}', [ProductTypeController::class, 'destroy'])->name('producttype.destroy');
 });
 
 // Nhan vien routes

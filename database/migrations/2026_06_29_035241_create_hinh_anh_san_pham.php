@@ -24,7 +24,8 @@ return new class extends Migration
             ->constrained('mau_sac')
             ->restrictOnDelete();
 
-        $table->string('hinhanh');
+        $table->string('hinhanh')->nullable();
+        $table->string('public_id')->nullable();
 
         $table->timestamps();
         });
