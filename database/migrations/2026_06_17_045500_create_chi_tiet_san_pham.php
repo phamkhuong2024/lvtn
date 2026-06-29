@@ -21,12 +21,12 @@ return new class extends Migration
 
                 $table->foreignId('mausacid')
                     ->constrained('mau_sac')
-                    ->cascadeOnDelete();
+                    ->restrictOnDelete();
 
                 $table->foreignId('kichcoid')
                     ->constrained('kich_co')
-                    ->cascadeOnDelete();
-
+                    ->restrictOnDelete();
+                
                 $table->integer('soluong')->default(0);
                 $table->decimal('gia', 12, 2);
 

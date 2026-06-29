@@ -789,10 +789,63 @@ img {
     transition: all 0.2s ease;
 }
 
+.admin-nav button {
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    color: #d1d5db;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    font-size: inherit;
+    font-family: inherit;
+}
+
 .admin-nav a:hover,
-.admin-nav a.active {
+.admin-nav a.active,
+.admin-nav button:hover {
     background: rgba(255, 255, 255, 0.12);
     color: #fff;
+}
+
+/* Accordion/Dropdown styles */
+.admin-nav .dropdown-toggle {
+    cursor: pointer;
+    position: relative;
+}
+
+.admin-nav .dropdown-toggle::after {
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 10px;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.admin-nav .dropdown-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+}
+
+.admin-nav .collapse {
+    padding-left: 0;
+    margin-top: 4px;
+}
+
+.admin-nav .submenu-item {
+    padding: 10px 14px 10px 38px !important;
+    font-size: 13px;
+    color: #9ca3af !important;
+    background: transparent !important;
+}
+
+.admin-nav .submenu-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #d1d5db !important;
 }
 
 .admin-main {
