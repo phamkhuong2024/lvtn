@@ -215,8 +215,10 @@
                 <!-- Action Buttons -->
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <button type="submit" class="btn btn-primary w-100 mb-2">
-                            <i class="bi bi-check-circle me-2"></i>Cập nhật sản phẩm
+                        <button type="submit" class="btn btn-primary w-100 mb-2" id="submitBtn">
+                            <span class="btn-text">
+                                <i class="bi bi-check-circle me-2"></i>Cập nhật sản phẩm
+                            </span>
                         </button>
                         <a href="{{ route('product.index') }}" class="btn btn-outline-secondary w-100">
                             <i class="bi bi-x-circle me-2"></i>Hủy
@@ -242,6 +244,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const colorImages = {};
     const existingColorImages = {};
     const variantData = {};
+    
+    // Button loading state functions
+    function showButtonLoading(buttonId) {
+        const btn = document.getElementById(buttonId);
+        btn.disabled = true;
+        btn.classList.add('btn-loading');
+        
+        const spinner = document.createElement('span');
+        spinner.className = 'btn-spinner';
+        btn.appendChild(spinner);
+    }
+    
+    function hideButtonLoading(buttonId) {
+        const btn = document.getElementById(buttonId);
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        
+        const spinner = btn.querySelector('.btn-spinner');
+        if (spinner) {
+            spinner.remove();
+        }
+    }
     
     // Load existing colors from images
     existingImages.forEach(img => {
@@ -633,6 +657,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // Show loading animation
+        showButtonLoading('submitBtn');
+        
         // Submit via fetch
         e.preventDefault();
         fetch(this.action, {
@@ -650,6 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
+            hideButtonLoading('submitBtn');
             console.error('Error:', error);
             alert('Có lỗi xảy ra khi cập nhật sản phẩm!');
         });
