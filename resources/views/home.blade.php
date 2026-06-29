@@ -158,13 +158,17 @@
                     @php
                         $firstImage = $product->images->first();
                     @endphp
+                    <a href="{{ route('product.show', $product->id) }}" class="product-link">
                     <img src="{{ $firstImage ? $firstImage->hinhanh : $product->hinhanh }}" 
                          alt="{{ $product->ten }}"
                          class="product-main-image">
+                    </a>
                     <div class="product-badge">New</div>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-name">{{ $product->ten }}</h3>
+                    <a href="{{ route('product.show', $product->id) }}" class="product-link">
+                        <h3 class="product-name">{{ $product->ten }}</h3>
+                    </a>
                     
                     @php
                         $availableColors = $product->images->unique('mausacid')->pluck('mauSac')->filter();

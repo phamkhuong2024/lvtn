@@ -140,9 +140,8 @@
         <p style="color: #666; margin-bottom: 20px;">
             Đăng xuất khỏi tài khoản của bạn
         </p>
-        <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
-            @csrf
-            <button 
+        <a href="{{ route('logout') }}">
+                        <button 
                 type="submit" 
                 style="padding: 12px 32px; background: #dc3545; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.3s;"
                 onmouseover="this.style.background='#c82333'"
@@ -150,7 +149,7 @@
             >
                 Đăng xuất
             </button>
-        </form>
+        </a>
     </div>
 </div>
 @endsection

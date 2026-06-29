@@ -281,6 +281,28 @@ class ProductController extends Controller
         return response()->json($productTypes);
     }
 
+    public function show($id)
+    {
+        $product = Product::with([
+            'category', 
+            'type', 
+            'images.mauSac', 
+            'variants.mauSac', 
+            'variants.kichCo'
+        ])->findOrFail($id);
+        
+        // Get unique colors from variants
+        $colors = $product->variants->pluck('mauSac')->unique('id')->values();
+        
+        // Get unique sizes from variants
+        $sizes = $product->variants->pluck('kichCo')->unique('id')->values();
+        
+        // Group images by color
+        $imagesByColor = $product->images->groupBy('mausacid');
+        
+        return view('sanpham.detail', compact('product', 'colors', 'sizes', 'imagesByColor'));
+    }
+
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
