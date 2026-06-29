@@ -74,98 +74,52 @@
         </div>
 
         <div class="product-grid grid-4">
-            <div class="product-card">
+            @forelse($featuredProducts as $product)
+            <div class="product-card" data-product-id="{{ $product->id }}">
                 <div class="product-image">
-                        <img src="https://buggy.yodycdn.com/images/product/916b6e0be53be04f51a79fe352304829.webp?width=987&height=1316" alt="Áo khoác nữ">
-                    <div class="product-badge">Hot</div>
+                    @php
+                        $firstImage = $product->images->first();
+                    @endphp
+                    <img src="{{ $firstImage ? $firstImage->hinhanh : $product->hinhanh }}" 
+                         alt="{{ $product->ten }}"
+                         class="product-main-image">
+                    @if($product->giagiam)
+                        <div class="product-badge">Sale</div>
+                    @endif
                 </div>
                 <div class="product-info">
-                    <h3 class="product-name">Áo Khoác Nữ</h3>
+                    <h3 class="product-name">{{ $product->ten }}</h3>
+                    
+                    @php
+                        $availableColors = $product->images->unique('mausacid')->pluck('mauSac')->filter();
+                    @endphp
+                    
+                    @if($availableColors->count() > 0)
+                    <div class="product-colors" style="display: flex; gap: 8px; margin: 8px 0;">
+                        @foreach($availableColors as $color)
+                        <button class="color-selector" 
+                                data-product-id="{{ $product->id }}"
+                                data-color-id="{{ $color->id }}"
+                                style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; background-color: {{ $color->ma_mau }}; cursor: pointer;"
+                                title="{{ $color->ten }}">
+                        </button>
+                        @endforeach
+                    </div>
+                    @endif
+                    
                     <div class="product-price">
-                        <span class="price">890.000đ</span>
-                        <span class="old-price">1.090.000đ</span>
+                        @if($product->giagiam)
+                            <span class="price">{{ number_format($product->giagiam, 0, ',', '.') }}đ</span>
+                            <span class="old-price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                        @endif
                     </div>
                 </div>
             </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/ea5e1a54458883b9b77497ee21ff922b.webp?width=987&height=1316" alt="Áo thun nữ">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Áo Thun Nữ</h3>
-                    <div class="product-price">
-                        <span class="price">290.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/3322c6398f4b9c5abdcf729c5d881643.webp?width=987&height=1316" alt="Quần jeans nữ">
-                    <div class="product-badge">New</div>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Quần Jeans Nữ</h3>
-                    <div class="product-price">
-                        <span class="price">590.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/5aeb0529419af08853475b4417e2e525.webp?width=987&height=1316" alt="Áo sơ mi nữ">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Áo Sơ Mi Nữ</h3>
-                    <div class="product-price">
-                        <span class="price">390.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/5aeb0529419af08853475b4417e2e525.webp?width=987&height=1316" alt="Váy maxi nữ">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Váy Maxi Nữ</h3>
-                    <div class="product-price">
-                        <span class="price">650.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/b6452c8944dcaae4df2e3533d468c765.webp?width=987&height=1316" alt="Túi xách nữ">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Túi Xách Nữ</h3>
-                    <div class="product-price">
-                        <span class="price">480.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/418b73800777e421d09ac5dc8031ca73.webp?width=987&height=1316" alt="Giày Nữ Cao Cấp">
-                    <div class="product-badge">Sale</div>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Giày Nữ Cao Cấp</h3>
-                    <div class="product-price">
-                        <span class="price">550.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/af5971d26454507631eeaf581a3147a3.webp?width=987&height=1316" alt="Áo Nỉ Có Mũ Nữ">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Áo Nỉ Có Mũ</h3>
-                    <div class="product-price">
-                        <span class="price">520.000đ</span>
-                    </div>
-                </div>
-            </div>
+            @empty
+            <p>Chưa có sản phẩm nào.</p>
+            @endforelse
         </div>
     </div>
 </section>
@@ -198,51 +152,50 @@
         </div>
 
         <div class="product-grid grid-4">
-            <div class="product-card">
+            @forelse($newProducts as $product)
+            <div class="product-card" data-product-id="{{ $product->id }}">
                 <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/8cdf0d0e6299efc71280bf50d17c30f6.webp?width=987&height=1316" alt="Áo thun nữ thể thao chống nắng">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Áo Thun Nữ Thể Thao Chống Nắng</h3>
-                    <div class="product-price">
-                        <span class="price">350.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/af5971d26454507631eeaf581a3147a3.webp?width=987&height=1316" alt="Áo Nỉ Có Mũ">
+                    @php
+                        $firstImage = $product->images->first();
+                    @endphp
+                    <img src="{{ $firstImage ? $firstImage->hinhanh : $product->hinhanh }}" 
+                         alt="{{ $product->ten }}"
+                         class="product-main-image">
                     <div class="product-badge">New</div>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-name">Áo Nỉ Có Mũ</h3>
+                    <h3 class="product-name">{{ $product->ten }}</h3>
+                    
+                    @php
+                        $availableColors = $product->images->unique('mausacid')->pluck('mauSac')->filter();
+                    @endphp
+                    
+                    @if($availableColors->count() > 0)
+                    <div class="product-colors" style="display: flex; gap: 8px; margin: 8px 0;">
+                        @foreach($availableColors as $color)
+                        <button class="color-selector" 
+                                data-product-id="{{ $product->id }}"
+                                data-color-id="{{ $color->id }}"
+                                style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; background-color: {{ $color->ma_mau }}; cursor: pointer;"
+                                title="{{ $color->ten }}">
+                        </button>
+                        @endforeach
+                    </div>
+                    @endif
+                    
                     <div class="product-price">
-                        <span class="price">480.000đ</span>
+                        @if($product->giagiam)
+                            <span class="price">{{ number_format($product->giagiam, 0, ',', '.') }}đ</span>
+                            <span class="old-price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                        @endif
                     </div>
                 </div>
             </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/d62291e883082b8289d6e9741a449190.webp?width=987&height=1316" alt="Quần Kaki Nữ Straight Soft Cạp Chéo">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Quần Kaki Nữ Straight Soft Cạp Chéo</h3>
-                    <div class="product-price">
-                        <span class="price">599.000đ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="https://buggy.yodycdn.com/images/product/418b73800777e421d09ac5dc8031ca73.webp?width=987&height=1316" alt="Giày Nữ Cao Cấp">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">Giày Nữ Cao Cấp</h3>
-                    <div class="product-price">
-                        <span class="price">550.000đ</span>
-                    </div>
-                </div>
-            </div>
+            @empty
+            <p>Chưa có sản phẩm mới nào.</p>
+            @endforelse
         </div>
     </div>
 </section>
@@ -284,4 +237,85 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prepare product images data
+    const productImagesData = {
+        @foreach($featuredProducts as $product)
+        {{ $product->id }}: {
+            @foreach($product->images->groupBy('mausacid') as $colorId => $images)
+            {{ $colorId }}: {!! json_encode($images->pluck('hinhanh')->toArray()) !!},
+            @endforeach
+        },
+        @endforeach
+        @foreach($newProducts as $product)
+        {{ $product->id }}: {
+            @foreach($product->images->groupBy('mausacid') as $colorId => $images)
+            {{ $colorId }}: {!! json_encode($images->pluck('hinhanh')->toArray()) !!},
+            @endforeach
+        },
+        @endforeach
+    };
+
+    // Add click handlers to all color selector buttons
+    document.querySelectorAll('.color-selector').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const productId = this.getAttribute('data-product-id');
+            const colorId = this.getAttribute('data-color-id');
+            
+            // Find the product card
+            const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+            if (!productCard) return;
+            
+            // Remove active state from all color buttons in this product
+            productCard.querySelectorAll('.color-selector').forEach(function(btn) {
+                btn.style.border = '2px solid #ddd';
+                btn.style.transform = 'scale(1)';
+            });
+            
+            // Add active state to clicked button
+            this.style.border = '3px solid #333';
+            this.style.transform = 'scale(1.1)';
+            
+            // Get images for this product and color
+            if (productImagesData[productId] && productImagesData[productId][colorId]) {
+                const images = productImagesData[productId][colorId];
+                
+                // Update the main product image
+                const mainImage = productCard.querySelector('.product-main-image');
+                if (mainImage && images.length > 0) {
+                    mainImage.src = images[0];
+                }
+            }
+        });
+    });
+    
+    // Set initial active state for first color button of each product
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        const firstColorButton = card.querySelector('.color-selector');
+        if (firstColorButton) {
+            firstColorButton.style.border = '3px solid #333';
+            firstColorButton.style.transform = 'scale(1.1)';
+        }
+    });
+});
+</script>
+
+<style>
+.color-selector {
+    transition: all 0.2s ease;
+}
+
+.color-selector:hover {
+    transform: scale(1.15) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.product-main-image {
+    transition: opacity 0.3s ease;
+}
+</style>
 @endsection
