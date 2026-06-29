@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Hash;
 class KhachHangController extends Controller
 {
     /**
+     * Show list of all khach hang
+     */
+    public function index()
+    {
+        $khachhangs = \App\Models\KhachHang::orderBy('id', 'desc')->paginate(10);
+        return view('khachhang.index', compact('khachhangs'));
+    }
+
+    /**
      * Show khach hang profile page
      */
     public function profile()

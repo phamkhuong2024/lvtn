@@ -43,12 +43,19 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
 
 // Nhan vien routes
 Route::prefix('nhanvien')->middleware(\App\Http\Middleware\AuthAdmin::class)->group(function () {
+    Route::get('/', [NhanVienController::class, 'index'])->name('nhanvien.index');
+    Route::get('/create', [NhanVienController::class, 'create'])->name('nhanvien.create');
+    Route::post('/', [NhanVienController::class, 'store'])->name('nhanvien.store');
+    Route::get('/{id}/edit', [NhanVienController::class, 'edit'])->name('nhanvien.edit');
+    Route::put('/{id}', [NhanVienController::class, 'update'])->name('nhanvien.update');
+    Route::delete('/{id}', [NhanVienController::class, 'destroy'])->name('nhanvien.destroy');
     Route::get('/profile', [NhanVienController::class, 'profile'])->name('nhanvien.profile');
     Route::post('/profile', [NhanVienController::class, 'updateProfile'])->name('nhanvien.profile.update');
 });
 
 // Khach hang routes
 Route::prefix('khachhang')->group(function () {
+    Route::get('/', [KhachHangController::class, 'index'])->name('khachhang.index');
     Route::get('/profile', [KhachHangController::class, 'profile'])->name('khachhang.profile');
     Route::post('/profile', [KhachHangController::class, 'updateProfile'])->name('khachhang.profile.update');
 });

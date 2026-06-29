@@ -17,7 +17,8 @@
                 <a href="{{ route('category.index') }}"><i class="fas fa-list"></i> Danh mục</a>
                 <a href="{{ route('product.index') }}"><i class="fas fa-box"></i> Sản phẩm</a>
                 <a href="#"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
-                <a href="#"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="{{ route('khachhang.index') }}"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="{{ route('nhanvien.index') }}"><i class="fas fa-user-tie"></i> Nhân viên</a>
                 <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>
             </nav>
         </aside>
