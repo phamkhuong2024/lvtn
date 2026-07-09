@@ -76,46 +76,47 @@
         <div class="product-grid grid-4">
             @forelse($featuredProducts as $product)
             <div class="product-card" data-product-id="{{ $product->id }}">
-                <div class="product-image">
-                    @php
-                        $firstImage = $product->images->first();
-                    @endphp
-                    <img src="{{ $firstImage ? $firstImage->hinhanh : $product->hinhanh }}" 
-                         alt="{{ $product->ten }}"
-                         class="product-main-image">
-                    @if($product->giagiam)
-                        <div class="product-badge">Sale</div>
-                    @endif
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ $product->ten }}</h3>
-                    
-                    @php
-                        $availableColors = $product->images->unique('mausacid')->pluck('mauSac')->filter();
-                    @endphp
-                    
-                    @if($availableColors->count() > 0)
-                    <div class="product-colors" style="display: flex; gap: 8px; margin: 8px 0;">
-                        @foreach($availableColors as $color)
-                        <button class="color-selector" 
-                                data-product-id="{{ $product->id }}"
-                                data-color-id="{{ $color->id }}"
-                                style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; background-color: {{ $color->ma_mau }}; cursor: pointer;"
-                                title="{{ $color->ten }}">
-                        </button>
-                        @endforeach
-                    </div>
-                    @endif
-                    
-                    <div class="product-price">
+                <a href="{{ route('product.show', $product->id) }}" class="product-link">
+                    <div class="product-image">
+                        @php
+                            $firstImage = $product->images->first();
+                        @endphp
+                        <img src="{{ $firstImage ? $firstImage->hinhanh : $product->hinhanh }}" 
+                             alt="{{ $product->ten }}"
+                             class="product-main-image">
                         @if($product->giagiam)
-                            <span class="price">{{ number_format($product->giagiam, 0, ',', '.') }}đ</span>
-                            <span class="old-price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
-                        @else
-                            <span class="price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                            <div class="product-badge">Sale</div>
                         @endif
                     </div>
-                </div>
+                    <div class="product-info">
+                        <h3 class="product-name">{{ $product->ten }}</h3>
+                        
+                        @php
+                            $availableColors = $product->images->unique('mausacid')->pluck('mauSac')->filter();
+                        @endphp
+                        
+                        @if($availableColors->count() > 0)
+                        <div class="product-colors" style="display: flex; gap: 8px; margin: 8px 0;">
+                            @foreach($availableColors as $color)
+                            <button type="button" class="color-selector" 
+                                    data-product-id="{{ $product->id }}"
+                                    data-color-id="{{ $color->id }}"
+                                    style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; background-color: {{ $color->ma_mau }}; cursor: pointer;"
+                                    title="{{ $color->ten }}"></button>
+                            @endforeach
+                        </div>
+                        @endif
+                        
+                        <div class="product-price">
+                            @if($product->giagiam)
+                                <span class="price">{{ number_format($product->giagiam, 0, ',', '.') }}đ</span>
+                                <span class="old-price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                            @else
+                                <span class="price">{{ number_format($product->giaban, 0, ',', '.') }}đ</span>
+                            @endif
+                        </div>
+                    </div>
+                </a>
             </div>
             @empty
             <p>Chưa có sản phẩm nào.</p>

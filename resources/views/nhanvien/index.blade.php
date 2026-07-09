@@ -10,6 +10,32 @@
             </a>
         </div>
     </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-success">
+                <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+                    <div>
+                        <h5 class="mb-1">Quản lý sản phẩm & loại sản phẩm</h5>
+                        <p class="text-muted mb-0">Nhân viên có thể truy cập chức năng giống admin để thêm/sửa loại sản phẩm và sản phẩm.</p>
+                    </div>
+                    <div class="ms-auto d-flex flex-wrap gap-2">
+                        <a href="{{ route('producttype.index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tags"></i> Loại sản phẩm
+                        </a>
+                        <a href="{{ route('product.index') }}" class="btn btn-outline-success">
+                            <i class="fas fa-box-open"></i> Sản phẩm
+                        </a>
+                        <a href="{{ route('producttype.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Thêm loại mới
+                        </a>
+                        <a href="{{ route('product.create') }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Thêm sản phẩm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

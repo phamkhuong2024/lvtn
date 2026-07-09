@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DonHang;
 use App\Models\KhachHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class KhachHangController extends Controller
@@ -14,7 +16,14 @@ class KhachHangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\KhachHang::query();
+        $query = KhachHang::query();
+
+        $purchaseSubquery = DonHang::selectRaw('COALESCE(SUM(chi_tiet_don_hang.soluong), 0)')
+            ->join('chi_tiet_don_hang', 'chi_tiet_don_hang.donhangid', '=', 'don_hang.id')
+            ->whereColumn('don_hang.khachhangid', 'khach_hang.id');
+
+        $query->select('khach_hang.*')
+            ->selectSub($purchaseSubquery, 'total_items_purchased');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -25,6 +34,16 @@ class KhachHangController extends Controller
                   ->orWhere('sdt', 'like', "%{$search}%")
                   ->orWhere('diachi', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->filled('min_items')) {
+            $minItems = (int) $request->min_items;
+            $query->havingRaw('COALESCE(total_items_purchased, 0) >= ?', [$minItems]);
+        }
+
+        if ($request->filled('max_items')) {
+            $maxItems = (int) $request->max_items;
+            $query->havingRaw('COALESCE(total_items_purchased, 0) <= ?', [$maxItems]);
         }
 
         $khachhangs = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();

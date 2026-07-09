@@ -32,6 +32,9 @@ class ProductController extends Controller
                   ->orWhere('mota', 'like', "%{$search}%")
                   ->orWhereHas('category', function($q) use ($search) {
                       $q->where('ten', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('type', function($q) use ($search) {
+                      $q->where('ten', 'like', "%{$search}%");
                   });
             });
         }

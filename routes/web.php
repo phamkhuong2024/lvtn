@@ -5,17 +5,28 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\ProductTypeController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::view('/about', 'about')->name('about');
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place');
+Route::get('/payment/vnpay-return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
 
 Route::get('/login',[LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login',[LoginController::class, 'login'])->name('login.post')->middleware('guest');
@@ -65,10 +76,17 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::get('/producttype/{id}/edit', [ProductTypeController::class, 'edit'])->name('producttype.edit');
     Route::put('/producttype/{id}', [ProductTypeController::class, 'update'])->name('producttype.update');
     Route::delete('/producttype/{id}', [ProductTypeController::class, 'destroy'])->name('producttype.destroy');
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('admin.order.index');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('admin.order.show');
+    Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
 });
 
 // Nhan vien routes
 Route::prefix('nhanvien')->middleware(\App\Http\Middleware\AuthAdmin::class)->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('nhanvien.order.index');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('nhanvien.order.show');
+    Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('nhanvien.order.updateStatus');
     Route::get('/', [NhanVienController::class, 'index'])->name('nhanvien.index');
     Route::get('/create', [NhanVienController::class, 'create'])->name('nhanvien.create');
     Route::post('/', [NhanVienController::class, 'store'])->name('nhanvien.store');
@@ -84,4 +102,7 @@ Route::prefix('khachhang')->group(function () {
     Route::get('/', [KhachHangController::class, 'index'])->name('khachhang.index');
     Route::get('/profile', [KhachHangController::class, 'profile'])->name('khachhang.profile');
     Route::post('/profile', [KhachHangController::class, 'updateProfile'])->name('khachhang.profile.update');
+    Route::get('/orders', [OrderController::class, 'customerIndex'])->name('khachhang.order.index');
+    Route::get('/orders/{id}', [OrderController::class, 'customerShow'])->name('khachhang.order.show');
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'customerCancel'])->name('khachhang.order.cancel');
 });

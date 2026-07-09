@@ -293,22 +293,61 @@ function addToCart() {
         alert('Số lượng vượt quá hàng có sẵn!');
         return;
     }
-    
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', {
-        productId: {{ $product->id }},
-        colorId: colorId,
-        sizeId: sizeId,
-        quantity: quantity
+
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch("{{ route('cart.add') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: {{ $product->id }},
+            color_id: colorId,
+            size_id: sizeId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.success);
+            updateCartCount(1);
+        } else if (data.error) {
+            alert(data.error);
+        } else {
+            alert('Đã thêm vào giỏ hàng!');
+            updateCartCount(1);
+        }
+    })
+    .catch(() => {
+        alert('Có lỗi khi thêm vào giỏ hàng, vui lòng thử lại.');
     });
-    
-    alert('Đã thêm vào giỏ hàng!');
 }
 
 function buyNow() {
     addToCart();
-    // TODO: Redirect to checkout
-    // window.location.href = '/checkout';
+    setTimeout(function () {
+        window.location.href = '{{ route('cart.index') }}';
+    }, 400);
+}
+
+function updateCartCount(amount) {
+    const badge = document.querySelector('.cart-count-badge');
+    if (!badge) {
+        const cartLink = document.querySelector('.cart-link');
+        if (!cartLink) return;
+        const span = document.createElement('span');
+        span.className = 'cart-count-badge';
+        span.style.cssText = 'position:absolute;top:-6px;right:-6px;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#dc3545;color:#fff;font-size:12px;font-weight:700;';
+        span.textContent = amount;
+        cartLink.appendChild(span);
+        return;
+    }
+    const current = parseInt(badge.textContent) || 0;
+    badge.textContent = current + amount;
 }
 
 // Initialize stock check on page load

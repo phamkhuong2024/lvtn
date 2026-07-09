@@ -14,12 +14,20 @@
             <div class="admin-brand">LK Fashion</div>
             <nav class="admin-nav">
                 @if(Auth::guard('nhanvien')->check())
-                    {{-- Nhân viên chỉ xem được Đơn hàng --}}
-                    <a href="#"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                    <a href="{{ route('nhanvien.order.index') }}" class="{{ request()->routeIs('nhanvien.order.*') ? 'active' : '' }}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                    <a href="{{ route('producttype.index') }}" class="{{ request()->routeIs('producttype.*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
+                    <button type="button" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-box"></i> Sản phẩm
+                    </button>
+                    <div class="collapse" id="productSubmenu">
+                        <a href="{{ route('product.index') }}" class="submenu-item"><i class="fas fa-box-open"></i> Sản phẩm</a>
+                        <a href="{{ route('color.index') }}" class="submenu-item"><i class="fas fa-palette"></i> Màu sắc</a>
+                        <a href="{{ route('size.index') }}" class="submenu-item"><i class="fas fa-ruler"></i> Kích cỡ</a>
+                    </div>
                     <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>
                 @else
                     {{-- Admin xem được tất cả --}}
-                    <a href="{{ route('admin.dashboard') }}" class="active"><i class="fas fa-home"></i> Tổng quan</a>
+                    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Tổng quan</a>
                     <a href="{{ route('category.index') }}"><i class="fas fa-list"></i> Danh mục</a>
                     
                     <a href="{{ route('producttype.index') }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
@@ -33,7 +41,7 @@
                         <a href="{{ route('size.index') }}" class="submenu-item"><i class="fas fa-ruler"></i> Kích cỡ</a>
                     </div>
                     
-                    <a href="#"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                    <a href="{{ route('admin.order.index') }}" class="{{ request()->routeIs('admin.order.*') ? 'active' : '' }}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
                     <a href="{{ route('khachhang.index') }}"><i class="fas fa-users"></i> Khách hàng</a>
                     <a href="{{ route('nhanvien.index') }}"><i class="fas fa-user-tie"></i> Nhân viên</a>
                     <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>

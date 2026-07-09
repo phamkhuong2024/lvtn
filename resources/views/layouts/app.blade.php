@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'LK fashion - Thời trang chất lượng')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -23,8 +24,11 @@
                         <li><a href="/contact">LIÊN HỆ</a></li>
                     </ul>
                 </nav>
-                <div class="header-actions">
-                    <a href="#" class="icon-link"><i class="fas fa-search"></i></a>
+                <div class="header-actions" style="display:flex; align-items:center; gap:12px;">
+                    <form action="{{ route('products') }}" method="GET" class="header-search-form" style="display:flex; align-items:center; gap:8px;">
+                        <input type="search" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm sản phẩm" style="padding:8px 12px; border-radius:999px; border:1px solid #ddd; min-width:200px; outline:none;">
+                        <button type="submit" class="icon-link" style="border:none; background:none; padding:0; cursor:pointer; color:#333;"><i class="fas fa-search"></i></button>
+                    </form>
                     
                     @if(Auth::guard('admin')->check())
                         <div class="user-dropdown">
@@ -58,6 +62,7 @@
                                 <i class="fas fa-chevron-down"></i>
                             </a>
                             <div class="dropdown-menu">
+                                <a href="{{ route('khachhang.order.index') }}">Đơn hàng</a>
                                 <a href="{{ route('khachhang.profile') }}">Hồ sơ</a>
                                 <a href="{{ route('logout') }}">Đăng xuất</a>
                             </div>
@@ -65,8 +70,15 @@
                     @else
                         <a href="{{ route('login') }}" class="icon-link"><i class="fas fa-user"></i></a>
                     @endif
-                    
-                    <a href="#" class="icon-link"><i class="fas fa-shopping-cart"></i></a>
+                    @php
+                        $cartCount = collect(session('cart', []))->sum('quantity');
+                    @endphp
+                    <a href="{{ route('cart.index') }}" class="icon-link cart-link" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        @if($cartCount > 0)
+                            <span class="cart-count-badge" style="position: absolute; top: -6px; right: -6px; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: #dc3545; color: #fff; font-size: 12px; font-weight: 700;">{{ $cartCount }}</span>
+                        @endif
+                    </a>
                 </div>
             </div>
         </div>

@@ -24,14 +24,32 @@
 
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm khách hàng...">
+                        <form action="{{ route('khachhang.index') }}" method="GET">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm khách hàng..." value="{{ request('search') }}" name="search">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <input type="number" name="min_items" value="{{ request('min_items') }}" class="form-control" placeholder="Từ số SP mua">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" name="max_items" value="{{ request('max_items') }}" class="form-control" placeholder="Đến số SP mua">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="submit" class="btn btn-primary">Lọc</button>
+                                    <a href="{{ route('khachhang.index') }}" class="btn btn-outline-secondary">Xóa lọc</a>
                                 </div>
                             </div>
-                            <div class="col-md-6 text-end">
+                        </form>
+                        <div class="row mb-3">
+                            <div class="col-md-12 text-end">
                                 <span class="text-muted">Tổng số: <strong>{{ $khachhangs->total() }}</strong> khách hàng</span>
                             </div>
                         </div>
@@ -45,6 +63,7 @@
                                         <th scope="col">Họ tên</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Số điện thoại</th>
+                                        <th scope="col">SP đã mua</th>
                                         <th scope="col">Ngày sinh</th>
                                         <th scope="col">Giới tính</th>
                                         <th scope="col">Địa chỉ</th>
@@ -73,6 +92,7 @@
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
+                                            <td class="text-center">{{ $khachhang->total_items_purchased ?? 0 }}</td>
                                             <td>
                                                 @if($khachhang->ngaysinh)
                                                     {{ $khachhang->ngaysinh->format('d/m/Y') }}
