@@ -33,7 +33,9 @@
                 </form>
             </div>
             <div class="col-md-6 text-end">
-                <span class="text-muted">Tổng số: <strong>{{ $products->total() }}</strong> sản phẩm</span>
+                <span class="text-muted">
+                    Trang {{ $products->currentPage() }} - Hiển thị: <strong>{{ $products->count() }}</strong> / Tổng: <strong>{{ $products->total() }}</strong> sản phẩm
+                </span>
             </div>
         </div>
 

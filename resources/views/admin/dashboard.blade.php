@@ -24,6 +24,118 @@
                 </div>
             </section>
 
+            <section class="admin-chart-section">
+                <div class="admin-panel">
+                    <div class="panel-heading">
+                        <h3>Doanh thu theo nhân viên</h3>
+                        <span class="badge">Bar chart</span>
+                    </div>
+                    @php
+                        $employeeMaxRevenue = !empty($employeeRevenueStats) ? max(array_column($employeeRevenueStats, 'revenue')) : 0;
+                        $employeeMaxRevenue = max($employeeMaxRevenue, 1);
+                    @endphp
+                    <div class="chart-grid">
+                        @if(!empty($employeeRevenueStats))
+                            @foreach($employeeRevenueStats as $employee)
+                                <div class="chart-column">
+                                    <div class="bar-track">
+                                        <div class="bar-fill" style="height: {{ round(($employee['revenue'] / $employeeMaxRevenue) * 100) }}%"></div>
+                                    </div>
+                                    <div class="bar-label">{{ Str::limit($employee['name'], 12) }}</div>
+                                    <div class="bar-value">{{ number_format($employee['revenue'], 0, ',', '.') }}₫</div>
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="empty-chart">Chưa có dữ liệu doanh thu cho nhân viên.</p>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="panel-heading">
+                        <h3>Doanh thu 6 tháng đầu năm</h3>
+                        <span class="badge">Line chart</span>
+                    </div>
+                    @php
+                        $lineMonths = collect(range(1, 6))->map(function ($month) use ($monthlyRevenueStats) {
+                            $item = collect($monthlyRevenueStats)->firstWhere('month', $month);
+                            return [
+                                'label' => now()->month($month)->translatedFormat('M'),
+                                'revenue' => $item['revenue'] ?? 0,
+                            ];
+                        });
+                        $lineMaxRevenue = max($lineMonths->pluck('revenue')->toArray()) ?: 1;
+                    @endphp
+                    <div class="line-chart-wrap">
+                        <svg viewBox="0 0 600 220" class="line-chart">
+                            <line x1="40" y1="180" x2="560" y2="180" class="chart-axis" />
+                            <line x1="40" y1="20" x2="40" y2="180" class="chart-axis" />
+                            @for($i = 0; $i < 5; $i++)
+                                <line x1="40" y1="{{ 30 + ($i * 30) }}" x2="560" y2="{{ 30 + ($i * 30) }}" class="chart-grid" />
+                            @endfor
+                            @php
+                                $points = [];
+                                $lineMonths->each(function ($item, $index) use (&$points, $lineMaxRevenue) {
+                                    $x = 40 + ($index * 100);
+                                    $y = 180 - (($item['revenue'] / $lineMaxRevenue) * 130);
+                                    $points[] = ['x' => $x, 'y' => $y];
+                                });
+                            @endphp
+                            @foreach($points as $index => $point)
+                                @if($index > 0)
+                                    <line x1="{{ $points[$index - 1]['x'] }}" y1="{{ $points[$index - 1]['y'] }}" x2="{{ $point['x'] }}" y2="{{ $point['y'] }}" class="line-path" />
+                                @endif
+                            @endforeach
+                            @foreach($points as $point)
+                                <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="5" class="line-point" />
+                            @endforeach
+                        </svg>
+                        <div class="line-labels">
+                            @foreach($lineMonths as $month)
+                                <span>{{ $month['label'] }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="panel-heading">
+                        <h3>Số lượng danh mục</h3>
+                        <span class="badge">Pie chart</span>
+                    </div>
+                    @php
+                        $categoryTotal = array_sum(array_column($categoryDistributionStats, 'count')) ?: 1;
+                    @endphp
+                    <div class="pie-chart-wrap">
+                        <svg viewBox="0 0 200 200" class="pie-chart">
+                            @php
+                                $startAngle = 0;
+                                $colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444'];
+                            @endphp
+                            @foreach($categoryDistributionStats as $index => $category)
+                                @php
+                                    $slice = ($category['count'] / $categoryTotal) * 360;
+                                    $endAngle = $startAngle + $slice;
+                                    $large = $slice > 180 ? 1 : 0;
+                                    $x1 = 100 + 80 * cos(deg2rad($startAngle));
+                                    $y1 = 100 + 80 * sin(deg2rad($startAngle));
+                                    $x2 = 100 + 80 * cos(deg2rad($endAngle));
+                                    $y2 = 100 + 80 * sin(deg2rad($endAngle));
+                                    $startAngle = $endAngle;
+                                @endphp
+                                <path d="M100 100 L{{ $x1 }} {{ $y1 }} A80 80 0 {{ $large }} 1 {{ $x2 }} {{ $y2 }} Z" fill="{{ $colors[$index % count($colors)] }}"></path>
+                            @endforeach
+                            <circle cx="100" cy="100" r="45" fill="#fff"></circle>
+                        </svg>
+                        <ul class="legend-list">
+                            @foreach($categoryDistributionStats as $index => $category)
+                                <li><span class="legend-dot" style="background: {{ $colors[$index % count($colors)] }}"></span>{{ $category['name'] }} ({{ $category['count'] }})</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             <section class="admin-products-section" id="product-section">
                 <div class="admin-panel">
                     <div class="panel-heading">

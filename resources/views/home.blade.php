@@ -70,7 +70,7 @@
     <div class="container">
         <div class="section-header">
             <h2>Sản phẩm bán chạy</h2>
-            <a href="#" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('products') }}" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
 
         <div class="product-grid grid-4">
@@ -149,7 +149,7 @@
     <div class="container">
         <div class="section-header">
             <h2>Sản phẩm mới về</h2>
-            <a href="#" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('products') }}" class="view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
 
         <div class="product-grid grid-4">

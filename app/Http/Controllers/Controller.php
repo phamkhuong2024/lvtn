@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\DonHang;
 use App\Models\KhachHang;
+use App\Models\NhanVien;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\ProductType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +21,136 @@ class Controller
         'da_huy' => 'Đã hủy',
     ];
 
+    public function getDailyRevenueStats(int $days = 7): array
+    {
+        $stats = [];
+
+        try {
+            $hasDonHangTable = DB::connection()->getSchemaBuilder()->hasTable('don_hang');
+        } catch (\Throwable $e) {
+            $hasDonHangTable = false;
+        }
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i)->startOfDay();
+            $start = $date->copy()->startOfDay();
+            $end = $date->copy()->endOfDay();
+
+            if (! $hasDonHangTable) {
+                $revenue = 0;
+                $orders = 0;
+            } else {
+                try {
+                    $query = DonHang::whereBetween('ngaydat', [$start, $end]);
+                    $revenue = (float) $query->sum('tonggia');
+                    $orders = (int) $query->count();
+                } catch (\Throwable $e) {
+                    $revenue = 0;
+                    $orders = 0;
+                }
+            }
+
+            $stats[] = [
+                'date' => $date->toDateString(),
+                'label' => $date->translatedFormat('d/m'),
+                'revenue' => $revenue,
+                'orders' => $orders,
+            ];
+        }
+
+        return $stats;
+    }
+
+    public function getEmployeeRevenueStats(): array
+    {
+        try {
+            $hasDonHangTable = DB::connection()->getSchemaBuilder()->hasTable('don_hang');
+            $hasNhanVienTable = DB::connection()->getSchemaBuilder()->hasTable('nhan_vien');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        if (! $hasDonHangTable || ! $hasNhanVienTable) {
+            return [];
+        }
+
+        return DonHang::query()
+            ->join('nhan_vien', 'nhan_vien.id', '=', 'don_hang.nhanvienid')
+            ->select('nhan_vien.id', 'nhan_vien.tennv as name', DB::raw('SUM(don_hang.tonggia) as revenue'), DB::raw('COUNT(don_hang.id) as orders'))
+            ->groupBy('nhan_vien.id', 'nhan_vien.tennv')
+            ->orderByDesc('revenue')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => (int) $item->id,
+                    'name' => (string) $item->name,
+                    'revenue' => (float) $item->revenue,
+                    'orders' => (int) $item->orders,
+                ];
+            })
+            ->toArray();
+    }
+
+    public function getMonthlyRevenueStats(): array
+    {
+        try {
+            $hasDonHangTable = DB::connection()->getSchemaBuilder()->hasTable('don_hang');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        if (! $hasDonHangTable) {
+            return [];
+        }
+
+        $currentYear = now()->year;
+
+        return DonHang::query()
+            ->whereYear('ngaydat', $currentYear)
+            ->select(
+                DB::raw('MONTH(ngaydat) as month'),
+                DB::raw('SUM(tonggia) as revenue'),
+                DB::raw('COUNT(id) as orders')
+            )
+            ->groupBy(DB::raw('MONTH(ngaydat)'))
+            ->orderBy(DB::raw('MONTH(ngaydat)'))
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'month' => (int) $item->month,
+                    'label' => now()->month((int) $item->month)->translatedFormat('M'),
+                    'revenue' => (float) $item->revenue,
+                    'orders' => (int) $item->orders,
+                ];
+            })
+            ->toArray();
+    }
+
+    public function getCategoryDistributionStats(): array
+    {
+        try {
+            $hasCategoryTable = DB::connection()->getSchemaBuilder()->hasTable('danh_muc');
+            $hasProductTable = DB::connection()->getSchemaBuilder()->hasTable('san_pham');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        if (! $hasCategoryTable || ! $hasProductTable) {
+            return [];
+        }
+
+        return Category::query()
+            ->withCount('products')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => (string) $item->ten,
+                    'count' => (int) $item->products_count,
+                ];
+            })
+            ->toArray();
+    }
+
     public function adminDashboard()
     {
         $today = now()->startOfDay();
@@ -27,6 +160,10 @@ class Controller
         $customerCount = KhachHang::count();
         $latestProducts = Product::with('category')->latest()->take(4)->get();
         $recentOrders = DonHang::with(['khachHang', 'chiTietDonHangs'])->latest('ngaydat')->take(3)->get();
+        $dailyRevenueStats = $this->getDailyRevenueStats(7);
+        $employeeRevenueStats = $this->getEmployeeRevenueStats();
+        $monthlyRevenueStats = $this->getMonthlyRevenueStats();
+        $categoryDistributionStats = $this->getCategoryDistributionStats();
 
         $currentYear = now()->year;
         $currentMonth = now()->month;
@@ -48,6 +185,10 @@ class Controller
             'customerCount',
             'latestProducts',
             'recentOrders',
+            'dailyRevenueStats',
+            'employeeRevenueStats',
+            'monthlyRevenueStats',
+            'categoryDistributionStats',
             'monthlyRevenue',
             'monthlyOrders',
             'quarterRevenue',
@@ -63,6 +204,9 @@ class Controller
     {
         $query = Product::where('trangthai', true);
 
+        // Load categories with product counts for sidebar
+        $categories = Category::withCount(['products'])->get();
+
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
@@ -76,7 +220,11 @@ class Controller
             });
         }
 
-        if (request()->filled('category')) {
+        // Support filtering by numeric category id (`category_id`) or legacy category keys (`category`)
+        if (request()->filled('category_id') && is_numeric(request('category_id'))) {
+            $categoryId = (int) request('category_id');
+            $query->where('danhmucid', $categoryId);
+        } elseif (request()->filled('category')) {
             $categoryKey = request('category');
             $categoryMap = [
                 'ao' => 'Áo',
@@ -98,6 +246,12 @@ class Controller
             }
         }
 
+        // Filter by product type id (loaisanphamid)
+        if (request()->filled('type') && is_numeric(request('type'))) {
+            $typeId = (int) request('type');
+            $query->where('loaisanphamid', $typeId);
+        }
+
         if (request()->filled('price')) {
             $price = request('price');
             $ranges = [
@@ -113,6 +267,12 @@ class Controller
 
         $products = $query->latest()->paginate(12)->withQueryString();
 
-        return view('products', compact('products'));
+        // If a category_id is selected, load its product types for the sidebar
+        $productTypes = collect();
+        if (isset($categoryId)) {
+            $productTypes = ProductType::where('danhmucid', $categoryId)->get();
+        }
+
+        return view('products', compact('products', 'categories', 'productTypes'));
     }
 }

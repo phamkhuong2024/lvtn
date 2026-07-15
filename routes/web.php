@@ -27,6 +27,7 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place');
 Route::get('/payment/vnpay-return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
+Route::get('/payment/return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.return');
 
 Route::get('/login',[LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login',[LoginController::class, 'login'])->name('login.post')->middleware('guest');

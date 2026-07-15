@@ -46,7 +46,34 @@
             </div>
         </div>
 
-        <div class="product-grid grid-4">
+        <div class="row">
+            <aside class="col-3">
+                <div class="category-sidebar">
+                    <h4>Danh mục</h4>
+                    <ul class="category-list">
+                        <li>
+                            <a href="{{ route('products', array_merge(request()->except(['page','category','category_id','type']), ['category_id' => ''])) }}" class="{{ !request('category_id') && !request('category') ? 'active' : '' }}">Tất cả <span class="count">({{ \App\Models\Product::where('trangthai', true)->count() }})</span></a>
+                        </li>
+                        @foreach($categories as $cat)
+                        <li>
+                            <a href="{{ route('products', array_merge(request()->except(['page','category','category_id','type']), ['category_id' => $cat->id])) }}" class="{{ request('category_id') == $cat->id ? 'active' : '' }}">{{ $cat->ten }} <span class="count">({{ $cat->products_count }})</span></a>
+                            @if(request('category_id') == $cat->id && $productTypes->count() > 0)
+                            <ul class="type-list">
+                                @foreach($productTypes as $type)
+                                <li>
+                                    <a href="{{ route('products', array_merge(request()->except(['page','type']), ['type' => $type->id])) }}" class="{{ request('type') == $type->id ? 'active' : '' }}">{{ $type->ten }} <span class="count">({{ $type->products()->where('trangthai', true)->count() }})</span></a>
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </aside>
+
+            <main class="col-9">
+                <div class="product-grid grid-4">
             @forelse($products as $product)
                 <div class="product-card">
                     <a href="{{ route('product.show', $product->id) }}" class="product-link">
@@ -72,6 +99,8 @@
             @empty
                 <div class="empty-state">Chưa có sản phẩm nào để hiển thị.</div>
             @endforelse
+                </div>
+            </main>
         </div>
 
         <div class="pagination-wrapper mt-4 d-flex justify-content-center">
@@ -79,4 +108,58 @@
         </div>
     </div>
 </section>
+<style>
+/* Products page styles */
+.products-page { padding: 36px 0; }
+.products-hero h1 { font-size: 28px; margin-bottom: 6px; }
+.products-toolbar { margin: 18px 0 28px; }
+
+.filter-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #eee;
+    background: #fff;
+    color: #333;
+    margin-right: 8px;
+    text-decoration: none;
+    font-size: 14px;
+}
+.filter-btn.active { background: #111; color: #fff; border-color: #111; }
+
+.category-sidebar { background: #fff; padding: 18px; border: 1px solid #f0f0f0; border-radius: 10px; box-shadow: 0 6px 18px rgba(16,24,40,0.03); position: sticky; top: 24px; }
+.category-sidebar h4 { margin: 0 0 12px; font-size: 16px; }
+.category-list { list-style: none; padding: 0; margin: 0; }
+.category-list > li { margin-bottom: 8px; }
+.category-list a { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 8px; color: #222; text-decoration: none; }
+.category-list a:hover { background: #fbfbfb; }
+.category-list a.active { background: #111; color: #fff; }
+.category-list .count { color: #888; font-size: 13px; }
+.type-list { list-style: none; padding-left: 10px; margin-top: 8px; }
+.type-list li { margin: 6px 0; }
+.type-list a { color: #444; font-size: 14px; text-decoration: none; }
+.type-list a.active { font-weight: 600; color: #111; }
+
+.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.product-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 10px; overflow: hidden; transition: transform .15s ease, box-shadow .15s ease; position: relative; }
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 8px 30px rgba(2,6,23,0.08); }
+.product-image img { width: 100%; height: 260px; object-fit: cover; display: block; }
+.product-info { padding: 12px; }
+.product-name { font-size: 15px; margin: 0 0 8px; }
+.product-price .price { font-weight: 700; color: #111; }
+.product-badge { position: absolute; top: 12px; left: 12px; padding: 6px 8px; background: #ff6b6b; color: #fff; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.product-badge.sale { background: #ff8c00; }
+
+@media (max-width: 992px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .col-3 { flex: 0 0 100%; max-width: 100%; margin-bottom: 16px; }
+    .category-sidebar { position: relative; top: 0; }
+}
+
+@media (max-width: 576px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .product-image img { height: 220px; }
+}
+</style>
+
 @endsection
