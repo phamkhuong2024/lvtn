@@ -137,29 +137,39 @@ class CheckoutController extends Controller
         $url = $vnpay['url'] ?? 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
         $tmnCode = $vnpay['tmn_code'] ?? '';
         $secret = $vnpay['hash_secret'] ?? '';
-        $returnUrl = $vnpay['return_url'] ?? route('payment.vnpay.return');
+        $returnUrl = $vnpay['return_url'] ?: route('payment.vnpay.return');
 
         $params = [
             'vnp_Version' => '2.1.0',
             'vnp_Command' => 'pay',
             'vnp_TmnCode' => $tmnCode,
             'vnp_Amount' => (string) ((int) round($order->tonggia) * 100),
-            'vnp_CurrCode' => 'VND',
-            'vnp_TxnRef' => (string) $order->id,
-            'vnp_OrderInfo' => 'Thanh toan don hang #' . $order->mavandon,
-            'vnp_OrderType' => 'other',
-            'vnp_Locale' => 'vn',
-            'vnp_ReturnUrl' => $returnUrl,
             'vnp_CreateDate' => now()->format('YmdHis'),
+            'vnp_CurrCode' => 'VND',
             'vnp_IpAddr' => request()->ip() ?: '127.0.0.1',
+            'vnp_Locale' => 'vn',
+            'vnp_OrderInfo' => 'Thanh toan don hang ' . $order->mavandon,
+            'vnp_OrderType' => 'other',
+            'vnp_ReturnUrl' => $returnUrl,
+            'vnp_TxnRef' => (string) $order->id,
         ];
 
         ksort($params);
-        $hashData = urldecode(http_build_query($params, '', '&'));
+        $hashData = '';
+        $query = '';
+        $i = 0;
+        foreach ($params as $key => $value) {
+            if ($i == 1) {
+                $hashData .= '&' . urlencode($key) . '=' . urlencode($value);
+            } else {
+                $hashData .= urlencode($key) . '=' . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . '=' . urlencode($value) . '&';
+        }
+
         $secureHash = hash_hmac('sha512', $hashData, $secret);
 
-        $params['vnp_SecureHash'] = $secureHash;
-
-        return $url . '?' . http_build_query($params, '', '&');
+        return $url . '?' . $query . 'vnp_SecureHash=' . $secureHash;
     }
 }

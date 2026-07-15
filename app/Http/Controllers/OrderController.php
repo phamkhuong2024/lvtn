@@ -47,6 +47,7 @@ class OrderController extends Controller
             'khachHang',
             'chiTietDonHangs.chiTietSanPham.mauSac',
             'chiTietDonHangs.chiTietSanPham.kichCo',
+            'thanhToan',
         ])->findOrFail($id);
 
         $routeGroup = explode('.', $request->route()->getName())[0];
@@ -97,6 +98,7 @@ class OrderController extends Controller
         $order = DonHang::with([
             'chiTietDonHangs.chiTietSanPham.mauSac',
             'chiTietDonHangs.chiTietSanPham.kichCo',
+            'thanhToan',
         ])->where('khachhangid', $customerId)->findOrFail($id);
 
         $statuses = $this->statuses;

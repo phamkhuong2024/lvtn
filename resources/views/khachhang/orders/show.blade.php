@@ -16,6 +16,25 @@
                     <p><strong>Mã vận đơn:</strong> {{ $order->mavandon_formatted }}</p>
                     <p><strong>Trạng thái:</strong> {{ $statuses[$order->trang_thai] ?? $order->trang_thai }}</p>
                     <p><strong>Phương thức thanh toán:</strong> {{ strtoupper($order->phuongthuc) }}</p>
+                    <p>
+                        <strong>Trạng thái thanh toán:</strong>
+                        @if($order->thanhToan)
+                            @if($order->thanhToan->trangthai === 'da_thanh_toan')
+                                <span class="badge bg-success">Đã thanh toán</span>
+                                @if($order->thanhToan->ngaythanhtoan)
+                                    <small class="text-muted">({{ $order->thanhToan->ngaythanhtoan->format('d/m/Y H:i') }})</small>
+                                @endif
+                            @elseif($order->thanhToan->trangthai === 'cho_thanh_toan')
+                                <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                            @elseif($order->thanhToan->trangthai === 'that_bai')
+                                <span class="badge bg-danger">Thanh toán thất bại</span>
+                            @else
+                                <span class="badge bg-secondary">{{ $order->thanhToan->trangthai }}</span>
+                            @endif
+                        @else
+                            <span class="badge bg-secondary">Chưa có thông tin</span>
+                        @endif
+                    </p>
                     <p><strong>Ngày đặt:</strong> {{ optional($order->ngaydat)->format('d/m/Y H:i') }}</p>
                     @if($order->ngaygiao)
                         <p><strong>Ngày giao dự kiến:</strong> {{ $order->ngaygiao->format('d/m/Y H:i') }}</p>
