@@ -123,10 +123,11 @@ $uploadedFileUrl = $uploadedFile['secure_url'];
         // Handle image upload to Cloudinary
         if ($request->hasFile('hinhanh')) {
             try {
-                $uploadedFileUrl =  Cloudinary::upload(
-    $request->file('hinhanh')->getRealPath()
-)->getSecurePath();
-                $validated['hinhanh'] = $uploadedFileUrl;
+                $uploadedFile = Cloudinary::uploadApi()->upload(
+                    $request->file('hinhanh')->getRealPath(),
+                    ['verify' => false]
+                );
+                $validated['hinhanh'] = $uploadedFile['secure_url'];
             } catch (\Exception $e) {
                 return redirect()->back()
                     ->withInput()
