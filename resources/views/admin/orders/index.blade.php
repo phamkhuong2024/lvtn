@@ -1,12 +1,16 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="admin-panel">
-        <div class="panel-heading d-flex justify-content-between align-items-center">
-            <h3>Quản lý đơn hàng</h3>
-            <form class="d-flex" method="GET" action="{{ route($routeGroup . '.order.index') }}">
-                <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm me-2" placeholder="Tìm kiếm đơn hàng...">
-                <select name="status" class="form-select form-select-sm me-2">
+    <div class="admin-panel admin-orders-panel">
+        <div class="panel-heading d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+            <div>
+                <h3 class="mb-1">Quản lý đơn hàng</h3>
+                <p class="text-muted mb-0">Theo dõi và lọc đơn hàng nhanh chóng theo trạng thái.</p>
+            </div>
+
+            <form class="order-filters d-flex flex-column flex-sm-row gap-2 align-items-stretch" method="GET" action="{{ route($routeGroup . '.order.index') }}">
+                <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Tìm kiếm đơn hàng...">
+                <select name="status" class="form-select form-select-sm">
                     <option value="">Tất cả trạng thái</option>
                     @foreach($statuses as $key => $label)
                         <option value="{{ $key }}" {{ request('status') === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -16,8 +20,8 @@
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
+        <div class="table-responsive admin-order-table">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -40,7 +44,7 @@
                             <td>{{ $order->sdt }}<br><small>{{ $order->email }}</small></td>
                             <td>{{ number_format($order->tonggia, 0, ',', '.') }}₫</td>
                             <td>{{ strtoupper($order->phuongthuc) }}</td>
-                            <td><span class="badge bg-secondary">{{ $statuses[$order->trang_thai] ?? $order->trang_thai }}</span></td>
+                            <td><span class="badge order-badge order-badge--{{ $order->trang_thai }}">{{ $statuses[$order->trang_thai] ?? $order->trang_thai }}</span></td>
                             <td>{{ optional($order->ngaydat)->format('d/m/Y H:i') }}</td>
                             <td><a href="{{ route($routeGroup . '.order.show', $order->id) }}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
                         </tr>
