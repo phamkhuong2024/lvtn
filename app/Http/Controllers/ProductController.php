@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Color;
 use App\Models\Product;
@@ -23,7 +24,7 @@ class ProductController extends Controller
             return view('admin.product.index', compact('products'));
         }
 
-        $query = Product::with(['category', 'type']);
+        $query = Product::with(['category', 'type', 'brand']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -49,10 +50,14 @@ class ProductController extends Controller
             ? Category::latest()->get()
             : collect();
         
+        $brands = Schema::hasTable('thuong_hieu')
+            ? Brand::where('trang_thai', true)->get()
+            : collect();
+
         $colors = Schema::hasTable('mau_sac') ? Color::all() : collect();
         $sizes = Schema::hasTable('kich_co') ? Size::all() : collect();
 
-        return view('admin.product.create', compact('categories', 'colors', 'sizes'));
+        return view('admin.product.create', compact('categories', 'brands', 'colors', 'sizes'));
     }
 
     public function store(Request $request)
@@ -60,6 +65,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'danhmucid' => 'required|exists:danh_muc,id',
             'loaisanphamid' => 'required|exists:loai_san_pham,id',
+            'thuong_hieu_id' => 'nullable|exists:thuong_hieu,id',
             'ten' => 'required|string|max:255',
             'giaban' => 'required|numeric|min:0',
             'giagiam' => 'nullable|numeric|min:0',
@@ -83,6 +89,7 @@ class ProductController extends Controller
             $productData = [
                 'danhmucid' => $validated['danhmucid'],
                 'loaisanphamid' => $validated['loaisanphamid'],
+                'thuong_hieu_id' => $validated['thuong_hieu_id'] ?? null,
                 'ten' => $validated['ten'],
                 'giaban' => $validated['giaban'],
                 'giagiam' => $validated['giagiam'] ?? null,
@@ -152,17 +159,18 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        $product = Product::with(['category', 'type', 'variants.mauSac', 'variants.kichCo', 'images.mauSac'])
+        $product = Product::with(['category', 'type', 'brand', 'variants.mauSac', 'variants.kichCo', 'images.mauSac'])
             ->findOrFail($id);
         
         $categories = Schema::hasTable('danh_muc') ? Category::all() : collect();
+        $brands = Schema::hasTable('thuong_hieu') ? Brand::all() : collect();
         $productTypes = Schema::hasTable('loai_san_pham') 
             ? ProductType::where('danhmucid', $product->danhmucid)->get() 
             : collect();
         $colors = Schema::hasTable('mau_sac') ? Color::all() : collect();
         $sizes = Schema::hasTable('kich_co') ? Size::all() : collect();
 
-        return view('admin.product.edit', compact('product', 'categories', 'productTypes', 'colors', 'sizes'));
+        return view('admin.product.edit', compact('product', 'categories', 'brands', 'productTypes', 'colors', 'sizes'));
     }
 
     public function update(Request $request, $id)
@@ -172,6 +180,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'danhmucid' => 'required|exists:danh_muc,id',
             'loaisanphamid' => 'required|exists:loai_san_pham,id',
+            'thuong_hieu_id' => 'nullable|exists:thuong_hieu,id',
             'ten' => 'required|string|max:255',
             'giaban' => 'required|numeric|min:0',
             'giagiam' => 'nullable|numeric|min:0',
@@ -195,6 +204,7 @@ class ProductController extends Controller
             $productData = [
                 'danhmucid' => $validated['danhmucid'],
                 'loaisanphamid' => $validated['loaisanphamid'],
+                'thuong_hieu_id' => $validated['thuong_hieu_id'] ?? null,
                 'ten' => $validated['ten'],
                 'giaban' => $validated['giaban'],
                 'giagiam' => $validated['giagiam'] ?? null,

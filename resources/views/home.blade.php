@@ -4,14 +4,20 @@
 
 @section('content')
 <section class="hero-banner">
+    <div class="hero-bg-shapes">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div class="glow-orb glow-orb-3"></div>
+        <div class="bg-pattern-grid"></div>
+    </div>
     <div class="container hero-layout">
         <div class="hero-content">
-            <span class="eyebrow">Bộ sưu tập đồ nữ mới 2026</span>
-            <h1 class="hero-title">Phong cách nữ tính, tự tin mỗi ngày.</h1>
+            <span class="eyebrow"><i class="fas fa-sparkles me-2"></i>Bộ sưu tập đồ nữ mới 2026</span>
+            <h1 class="hero-title">Phong cách nữ tính, <span class="text-gradient">tự tin mỗi ngày.</span></h1>
             <p class="hero-subtitle">Từ áo thun, áo khoác, váy, quần jeans đến phụ kiện, mọi item đều được thiết kế riêng cho phái đẹp hiện đại.</p>
             <div class="hero-actions">
-                <a href="#" class="btn-primary">Khám phá ngay</a>
-                <a href="#" class="btn-secondary">Xem ưu đãi</a>
+                <a href="{{ route('products') }}" class="btn-primary btn-glow">Khám phá ngay <i class="fas fa-arrow-right ms-2"></i></a>
+                <a href="#featured-section" class="btn-secondary">Xem ưu đãi</a>
             </div>
             <div class="hero-stats">
                 <div class="hero-stat">
@@ -22,12 +28,19 @@
                     <strong>24/7</strong>
                     <span>Hỗ trợ giao hàng</span>
                 </div>
+                <div class="hero-stat">
+                    <strong>100%</strong>
+                    <span>Hàng chính hãng</span>
+                </div>
             </div>
         </div>
 
         <div class="hero-visual">
             <div class="hero-card large">
                 <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80" alt="Mẫu thời trang nữ hiện đại">
+                <div class="card-glass-badge">
+                    <i class="fas fa-crown text-warning me-2"></i> Hot Trend 2026
+                </div>
             </div>
             <div class="hero-card small">
                 <img src="https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=700&q=80" alt="Bộ sưu tập đồ nữ">
@@ -66,7 +79,7 @@
     </div>
 </section>
 
-<section class="product-section">
+<section class="product-section" id="featured-section">
     <div class="container">
         <div class="section-header">
             <h2>Sản phẩm bán chạy</h2>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
@@ -50,6 +51,13 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
     Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
 
+    Route::get('/brand', [BrandController::class, 'index'])->name('brand.index');
+    Route::get('/brand/create', [BrandController::class, 'create'])->name('brand.create');
+    Route::post('/brand', [BrandController::class, 'store'])->name('brand.store');
+    Route::get('/brand/{id}/edit', [BrandController::class, 'edit'])->name('brand.edit');
+    Route::put('/brand/{id}', [BrandController::class, 'update'])->name('brand.update');
+    Route::delete('/brand/{id}', [BrandController::class, 'destroy'])->name('brand.destroy');
+
     Route::get('/products', [ProductController::class, 'index'])->name('product.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
     Route::post('/products', [ProductController::class, 'store'])->name('product.store');
@@ -65,7 +73,7 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::put('/color/{id}', [ColorController::class, 'update'])->name('color.update');
     Route::delete('/color/{id}', [ColorController::class, 'destroy'])->name('color.destroy');
 
-     Route::get('/size', [SizeController::class, 'index'])->name('size.index');
+    Route::get('/size', [SizeController::class, 'index'])->name('size.index');
     Route::get('/size/create', [SizeController::class, 'create'])->name('size.create');
     Route::post('/size', [SizeController::class, 'store'])->name('size.store');
     Route::get('/size/{id}/edit', [SizeController::class, 'edit'])->name('size.edit');
@@ -108,3 +116,7 @@ Route::prefix('khachhang')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'customerShow'])->name('khachhang.order.show');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'customerCancel'])->name('khachhang.order.cancel');
 });
+
+// Google login routes
+Route::get('login-google', [\App\Http\Controllers\LoginGoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('login-google-callback', [\App\Http\Controllers\LoginGoogleController::class, 'handleGoogleCallback'])->name('login.google.callback');

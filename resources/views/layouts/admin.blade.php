@@ -15,6 +15,8 @@
             <nav class="admin-nav">
                 @if(Auth::guard('nhanvien')->check())
                     <a href="{{ route('nhanvien.order.index') }}" class="{{ request()->routeIs('nhanvien.order.*') ? 'active' : '' }}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                    <a href="{{ route('category.index') }}" class="{{ request()->routeIs('category.*') ? 'active' : '' }}"><i class="fas fa-list"></i> Danh mục</a>
+                    <a href="{{ route('brand.index') }}" class="{{ request()->routeIs('brand.*') ? 'active' : '' }}"><i class="fas fa-trademark"></i> Thương hiệu</a>
                     <a href="{{ route('producttype.index') }}" class="{{ request()->routeIs('producttype.*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
                     <button type="button" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false" class="dropdown-toggle">
                         <i class="fas fa-box"></i> Sản phẩm
@@ -28,9 +30,10 @@
                 @else
                     {{-- Admin xem được tất cả --}}
                     <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Tổng quan</a>
-                    <a href="{{ route('category.index') }}"><i class="fas fa-list"></i> Danh mục</a>
+                    <a href="{{ route('category.index') }}" class="{{ request()->routeIs('category.*') ? 'active' : '' }}"><i class="fas fa-list"></i> Danh mục</a>
+                    <a href="{{ route('brand.index') }}" class="{{ request()->routeIs('brand.*') ? 'active' : '' }}"><i class="fas fa-trademark"></i> Thương hiệu</a>
                     
-                    <a href="{{ route('producttype.index') }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
+                    <a href="{{ route('producttype.index') }}" class="{{ request()->routeIs('producttype.*') ? 'active' : '' }}"><i class="fas fa-tags"></i> Loại sản phẩm</a>
                     <!-- Sản phẩm Accordion -->
                     <button type="button" data-bs-toggle="collapse" data-bs-target="#productSubmenu" aria-expanded="false" class="dropdown-toggle">
                         <i class="fas fa-box"></i> Sản phẩm
@@ -52,11 +55,11 @@
             <header class="admin-topbar mx-4">
                 <div>
                     <p class="muted">Xin chào, {{ Auth::guard('nhanvien')->check() ? 'Nhân viên' : 'Admin' }}</p>
-                    <h2>{{ Auth::guard('nhanvien')->check() ? 'Quản lý đơn hàng' : 'Dashboard quản trị' }}</h2>
+                    <h2>{{ Auth::guard('nhanvien')->check() ? 'Trang quản trị nhân viên' : 'Dashboard quản trị' }}</h2>
                 </div>
                 <div class="admin-user">
                     <i class="fas fa-user-circle"></i>
-                    <span>{{ Auth::guard('nhanvien')->check() ? Auth::guard('nhanvien')->user()->ten_nhan_vien : 'Admin LK Fashion' }}</span>
+                    <span>{{ Auth::guard('nhanvien')->check() ? (Auth::guard('nhanvien')->user()->tennv ?? Auth::guard('nhanvien')->user()->ten_nhan_vien) : 'Admin LK Fashion' }}</span>
                 </div>
             </header>
             <main class="admin-main">

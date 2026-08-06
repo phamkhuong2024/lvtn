@@ -47,6 +47,7 @@
                             <th>ID</th>
                             <th>Tên sản phẩm</th>
                             <th>Danh mục</th>
+                            <th>Thương hiệu</th>
                             <th>Giá bán</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
@@ -58,6 +59,7 @@
                                 <td>{{ $product->id }}</td>
                                 <td>{{ $product->ten }}</td>
                                 <td>{{ $product->category?->ten ?? 'Chưa phân loại' }}</td>
+                                <td>{{ $product->brand?->ten ?? '—' }}</td>
                                 <td>{{ number_format($product->giaban, 0, ',', '.') }}đ</td>
                                 <td>
                                     @if($product->trangthai)
@@ -77,7 +79,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">Chưa có sản phẩm nào</td>
+                                <td colspan="7" class="text-center">Chưa có sản phẩm nào</td>
                             </tr>
                         @endforelse
                     </tbody>

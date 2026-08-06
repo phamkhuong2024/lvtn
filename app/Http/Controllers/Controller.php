@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\DonHang;
 use App\Models\KhachHang;
 use App\Models\NhanVien;
@@ -10,6 +11,8 @@ use App\Models\Category;
 use App\Models\ProductType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class Controller
 {
@@ -207,17 +210,74 @@ class Controller
         // Load categories with product counts for sidebar
         $categories = Category::withCount(['products'])->get();
 
+        // Load brands with product counts
+        $brands = Schema::hasTable('thuong_hieu')
+            ? Brand::where('trang_thai', true)
+                ->withCount(['products' => function ($q) {
+                    $q->where('trangthai', true);
+                }])
+                ->get()
+            : collect();
+
         if (request()->filled('search')) {
-            $search = request('search');
-            $query->where(function ($q) use ($search) {
+            $search = trim(request('search'));
+            $searchLower = mb_strtolower($search, 'UTF-8');
+            $searchSlug = Str::slug($search);
+
+            // Match category IDs by name or slug
+            $matchedCategoryIds = Category::where('ten', 'like', "%{$search}%")
+                ->orWhere('slug', 'like', "%{$searchSlug}%")
+                ->pluck('id')
+                ->toArray();
+
+            // Handle common unaccented search terms
+            $unaccentMap = [
+                'ao'      => 'Áo',
+                'quan'    => 'Quần',
+                'vay'     => 'Váy',
+                'phukien' => 'Phụ kiện',
+            ];
+
+            if (isset($unaccentMap[$searchLower])) {
+                $mappedName = $unaccentMap[$searchLower];
+                $extraCategoryIds = Category::where('ten', 'like', "%{$mappedName}%")->pluck('id')->toArray();
+                $matchedCategoryIds = array_unique(array_merge($matchedCategoryIds, $extraCategoryIds));
+            }
+
+            // Match product type IDs by name or slug
+            $matchedTypeIds = ProductType::where('ten', 'like', "%{$search}%")
+                ->orWhere('slug', 'like', "%{$searchSlug}%")
+                ->pluck('id')
+                ->toArray();
+
+            // Match brand IDs by name or slug
+            $matchedBrandIds = Schema::hasTable('thuong_hieu')
+                ? Brand::where('ten', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$searchSlug}%")
+                    ->pluck('id')
+                    ->toArray()
+                : [];
+
+            $query->where(function ($q) use ($search, $matchedCategoryIds, $matchedTypeIds, $matchedBrandIds) {
                 $q->where('ten', 'like', "%{$search}%")
-                    ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('ten', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('type', function ($q) use ($search) {
-                        $q->where('ten', 'like', "%{$search}%");
-                    });
+                  ->orWhere('mota', 'like', "%{$search}%");
+
+                if (!empty($matchedCategoryIds)) {
+                    $q->orWhereIn('danhmucid', $matchedCategoryIds);
+                }
+                if (!empty($matchedTypeIds)) {
+                    $q->orWhereIn('loaisanphamid', $matchedTypeIds);
+                }
+                if (!empty($matchedBrandIds)) {
+                    $q->orWhereIn('thuong_hieu_id', $matchedBrandIds);
+                }
             });
+        }
+
+        // Filter by brand_id
+        if (request()->filled('brand_id') && is_numeric(request('brand_id'))) {
+            $brandId = (int) request('brand_id');
+            $query->where('thuong_hieu_id', $brandId);
         }
 
         // Support filtering by numeric category id (`category_id`) or legacy category keys (`category`)
@@ -225,7 +285,7 @@ class Controller
             $categoryId = (int) request('category_id');
             $query->where('danhmucid', $categoryId);
         } elseif (request()->filled('category')) {
-            $categoryKey = request('category');
+            $categoryKey = mb_strtolower(request('category'), 'UTF-8');
             $categoryMap = [
                 'ao' => 'Áo',
                 'quan' => 'Quần',
@@ -237,7 +297,7 @@ class Controller
                 $categoryName = $categoryMap[$categoryKey];
                 $query->where(function ($q) use ($categoryName) {
                     $q->whereHas('category', function ($q2) use ($categoryName) {
-                        $q2->where('ten', $categoryName);
+                        $q2->where('ten', 'like', "%{$categoryName}%");
                     })
                     ->orWhereHas('type', function ($q2) use ($categoryName) {
                         $q2->where('ten', 'like', "%{$categoryName}%");
@@ -273,6 +333,6 @@ class Controller
             $productTypes = ProductType::where('danhmucid', $categoryId)->get();
         }
 
-        return view('products', compact('products', 'categories', 'productTypes'));
+        return view('products', compact('products', 'categories', 'brands', 'productTypes'));
     }
 }

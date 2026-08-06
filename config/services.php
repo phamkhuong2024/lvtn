@@ -42,4 +42,13 @@ return [
         'return_url' => env('VNPAY_RETURN_URL'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
+        'guzzle' => [
+            'verify' => false,
+        ],
+    ],
+
 ];

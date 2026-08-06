@@ -14,6 +14,7 @@ class Product extends Model
     protected $fillable = [
         'danhmucid',
         'loaisanphamid',
+        'thuong_hieu_id',
         'ten',
         'giaban',
         'giagiam',
@@ -38,6 +39,11 @@ class Product extends Model
     public function type()
     {
         return $this->belongsTo(ProductType::class, 'loaisanphamid');
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'thuong_hieu_id');
     }
 
     public function variants()

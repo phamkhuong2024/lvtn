@@ -40,9 +40,9 @@
                         <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Thông tin sản phẩm</h5>
                     </div>
                     <div class="card-body">
-                        <!-- Category and Product Type -->
+                        <!-- Category, Product Type, and Brand -->
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="danhmucid" class="form-label">Danh mục <span class="text-danger">*</span></label>
                                 <select class="form-select" id="danhmucid" name="danhmucid" required>
                                     <option value="">-- Chọn danh mục --</option>
@@ -53,10 +53,21 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="loaisanphamid" class="form-label">Loại sản phẩm <span class="text-danger">*</span></label>
                                 <select class="form-select" id="loaisanphamid" name="loaisanphamid" required>
                                     <option value="">-- Chọn danh mục trước --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="thuong_hieu_id" class="form-label">Thương hiệu</label>
+                                <select class="form-select" id="thuong_hieu_id" name="thuong_hieu_id">
+                                    <option value="">-- Chọn thương hiệu --</option>
+                                    @foreach($brands as $b)
+                                        <option value="{{ $b->id }}" {{ old('thuong_hieu_id') == $b->id ? 'selected' : '' }}>
+                                            {{ $b->ten }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
