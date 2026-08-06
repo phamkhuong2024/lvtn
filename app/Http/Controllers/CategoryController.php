@@ -21,7 +21,11 @@ class CategoryController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('ten', 'like', "%{$search}%")
-                  ->orWhere('mota', 'like', "%{$search}%");
+                  ->orWhere('mota', 'like', "%{$search}%")
+                  ->when(
+                      Schema::hasColumn('danh_muc', 'slug'),
+                      fn ($query) => $query->orWhere('slug', 'like', "%{$search}%")
+                  );
             });
         }
 
@@ -48,6 +52,7 @@ class CategoryController extends Controller
         Category::create([
             'ten' => $request->ten,
             'mota' => $request->mota,
+            'slug' => $request->input('slug'),
         ]);
 
         return redirect()->route('category.index')->with('success', 'Thêm danh mục thành công!');
@@ -75,6 +80,7 @@ class CategoryController extends Controller
         $category->update([
             'ten' => $request->ten,
             'mota' => $request->mota,
+            'slug' => $request->input('slug'),
         ]);
 
         return redirect()->route('category.index')->with('success', 'Cập nhật danh mục thành công!');
