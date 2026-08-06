@@ -21,7 +21,6 @@
                         <li><a href="/" class="active">TRANG CHỦ</a></li>
                         <li><a href="{{ route('products') }}">SẢN PHẨM</a></li>
                         <li><a href="/about">GIỚI THIỆU</a></li>
-                        <li><a href="/contact">LIÊN HỆ</a></li>
                     </ul>
                 </nav>
                 <div class="header-actions" style="display:flex; align-items:center; gap:12px;">
