@@ -13,6 +13,7 @@ class Voucher extends Model
 
     protected $fillable = [
         'ten',
+        'ma_voucher',
         'loai_khuyen_mai',
         'giatrigiam',
         'giatridonhang',

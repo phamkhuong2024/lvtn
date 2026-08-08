@@ -32,6 +32,8 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.applyVoucher');
+Route::post('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.removeVoucher');
 Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index')->middleware('auth:khachhang');
 Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place')->middleware('auth:khachhang');
 Route::get('/payment/vnpay-return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');

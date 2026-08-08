@@ -17,8 +17,7 @@ class ReviewController extends Controller
     {
         // Check if user is authenticated
         if (!Auth::guard('khachhang')->check()) {
-            return redirect()->route('login')
-                ->with('error', 'Vui lòng đăng nhập để đánh giá sản phẩm.');
+            return response()->json(['error' => 'Vui lòng đăng nhập để đánh giá sản phẩm.'], 401);
         }
 
         // Validate the product exists
@@ -45,7 +44,7 @@ class ReviewController extends Controller
             ->first();
 
         if ($existingReview) {
-            return back()->with('error', 'Bạn đã đánh giá sản phẩm này rồi.');
+            return response()->json(['error' => 'Bạn đã đánh giá sản phẩm này rồi.'], 400);
         }
 
         // Handle image upload if present
@@ -66,7 +65,7 @@ class ReviewController extends Controller
                 
                 $imageUrl = $uploadedFileUrl;
             } catch (\Exception $e) {
-                return back()->with('error', 'Lỗi khi tải hình ảnh lên. Vui lòng thử lại.');
+                return response()->json(['error' => 'Lỗi khi tải hình ảnh lên. Vui lòng thử lại.'], 500);
             }
         }
 
@@ -80,6 +79,6 @@ class ReviewController extends Controller
             'ngaydang' => now(),
         ]);
 
-        return back()->with('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+        return response()->json(['success' => 'Cảm ơn bạn đã đánh giá sản phẩm!']);
     }
 }

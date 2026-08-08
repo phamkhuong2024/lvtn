@@ -6,6 +6,7 @@ use App\Models\ChiTietDonHang;
 use App\Models\DonHang;
 use App\Models\ProductVariant;
 use App\Models\ThanhToan;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,9 +33,21 @@ class CheckoutController extends Controller
         });
 
         // Lấy thông tin voucher đã áp dụng từ session
-        $appliedVoucher = session('applied_voucher');
-        $discount = $appliedVoucher['discount'] ?? 0;
-        $finalTotal = $cartTotal - $discount;
+        $appliedVoucher = null;
+        $discount = 0;
+        $finalTotal = $cartTotal;
+
+        if (session('applied_voucher_id')) {
+            $voucher = Voucher::find(session('applied_voucher_id'));
+            if ($voucher && $voucher->isApplicable($cartTotal)) {
+                $appliedVoucher = $voucher;
+                $discount = $voucher->calculateDiscount($cartTotal);
+                $finalTotal = max(0, $cartTotal - $discount);
+            } else {
+                // Xóa voucher không hợp lệ
+                session()->forget('applied_voucher_id');
+            }
+        }
 
         return view('checkout.index', compact('cartItems', 'cartTotal', 'appliedVoucher', 'discount', 'finalTotal'));
     }
@@ -62,9 +75,21 @@ class CheckoutController extends Controller
         });
 
         // Lấy thông tin voucher đã áp dụng từ session
-        $appliedVoucher = session('applied_voucher');
-        $discount = $appliedVoucher['discount'] ?? 0;
-        $finalTotal = $cartTotal - $discount;
+        $appliedVoucher = null;
+        $discount = 0;
+        $finalTotal = $cartTotal;
+
+        if (session('applied_voucher_id')) {
+            $voucher = Voucher::find(session('applied_voucher_id'));
+            if ($voucher && $voucher->isApplicable($cartTotal)) {
+                $appliedVoucher = $voucher;
+                $discount = $voucher->calculateDiscount($cartTotal);
+                $finalTotal = max(0, $cartTotal - $discount);
+            } else {
+                // Xóa voucher không hợp lệ
+                session()->forget('applied_voucher_id');
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -85,6 +110,7 @@ class CheckoutController extends Controller
                 'phigiaohang' => 0,
                 'tonggia' => $finalTotal,
                 'giamgia' => $discount,
+                'khuyenmaiid' => $appliedVoucher ? $appliedVoucher->id : null,
                 'phuongthuc' => $request->phuongthuc,
                 'ngaydat' => Carbon::now(),
             ]);
@@ -118,7 +144,7 @@ class CheckoutController extends Controller
             ]);
 
             session()->forget('cart');
-            session()->forget('applied_voucher');
+            session()->forget('applied_voucher_id');
             DB::commit();
 
             if (in_array($request->phuongthuc, ['stripe', 'vnpay', 'paypal', 'vietqr'])) {

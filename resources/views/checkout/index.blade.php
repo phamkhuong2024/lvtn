@@ -82,7 +82,7 @@
                     <!-- Voucher Section -->
                     <div class="voucher-section">
                         <div class="voucher-input-group">
-                            <input type="text" id="voucherInput" class="form-control" placeholder="Nhập mã voucher" value="{{ $appliedVoucher['ten'] ?? '' }}" {{ $appliedVoucher ? 'disabled' : '' }}>
+                            <!-- <input type="text" id="voucherInput" class="form-control" placeholder="Nhập mã voucher" value="{{ $appliedVoucher['ten'] ?? '' }}" {{ $appliedVoucher ? 'disabled' : '' }}> -->
                             @if($appliedVoucher)
                                 <button type="button" class="btn btn-danger" id="removeVoucherBtn">Xóa</button>
                             @else
@@ -90,14 +90,11 @@
                             @endif
                         </div>
                         <div id="voucherMessage" class="voucher-message"></div>
-                        <a href="{{ route('vouchers.index') }}" class="voucher-link" target="_blank">
-                            <i class="fas fa-ticket-alt"></i> Xem danh sách voucher khả dụng
-                        </a>
                     </div>
 
                     @if($appliedVoucher)
                     <div class="summary-item discount-item">
-                        <span>Giảm giá ({{ $appliedVoucher['ten'] }})</span>
+                        <span>Giảm giá ({{ $appliedVoucher->ma_voucher }} - {{ $appliedVoucher->ten }})</span>
                         <span class="discount-amount">-{{ number_format($discount, 0, ',', '.') }}đ</span>
                     </div>
                     @endif

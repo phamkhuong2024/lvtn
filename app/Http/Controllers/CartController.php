@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,30 @@ class CartController extends Controller
             return $item['price'] * $item['quantity'];
         });
 
-        return view('cart.index', compact('cartItems', 'cartTotal'));
+        // Lấy danh sách voucher đang hoạt động
+        $vouchers = Voucher::where('trangthai', 1)
+            ->where('ngaybatdau', '<=', now())
+            ->where('ngayketthuc', '>=', now())
+            ->get();
+
+        // Lấy thông tin voucher đã áp dụng (nếu có)
+        $appliedVoucher = null;
+        $discount = 0;
+        $finalTotal = $cartTotal;
+
+        if (session('applied_voucher_id')) {
+            $appliedVoucher = Voucher::find(session('applied_voucher_id'));
+            if ($appliedVoucher && $appliedVoucher->isApplicable($cartTotal)) {
+                $discount = $appliedVoucher->calculateDiscount($cartTotal);
+                $finalTotal = max(0, $cartTotal - $discount);
+            } else {
+                // Xóa voucher không hợp lệ
+                session()->forget('applied_voucher_id');
+                $appliedVoucher = null;
+            }
+        }
+
+        return view('cart.index', compact('cartItems', 'cartTotal', 'vouchers', 'appliedVoucher', 'discount', 'finalTotal'));
     }
 
     public function add(Request $request)
@@ -157,5 +181,46 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.index')->with('success', 'Sản phẩm đã được xóa khỏi giỏ hàng.');
+    }
+
+    public function applyVoucher(Request $request)
+    {
+        $request->validate([
+            'voucher_code' => 'required|string',
+        ]);
+
+        $voucher = Voucher::where('ma_voucher', $request->voucher_code)->first();
+
+        if (!$voucher) {
+            return back()->with('error', 'Mã voucher không tồn tại.');
+        }
+
+        if (!$voucher->isActive()) {
+            return back()->with('error', 'Mã voucher đã hết hạn hoặc chưa được kích hoạt.');
+        }
+
+        $cartItems = collect(session('cart', []));
+        $cartTotal = $cartItems->sum(function ($item) {
+            return $item['price'] * $item['quantity'];
+        });
+
+        // Kiểm tra giỏ hàng trống
+        if ($cartTotal == 0) {
+            return back()->with('error', 'Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi áp dụng voucher.');
+        }
+
+        if (!$voucher->isApplicable($cartTotal)) {
+            return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng voucher này. Cần tối thiểu: ' . number_format($voucher->giatridonhang, 0, ',', '.') . 'đ');
+        }
+
+        session(['applied_voucher_id' => $voucher->id]);
+
+        return back()->with('success', 'Áp dụng mã voucher thành công!');
+    }
+
+    public function removeVoucher()
+    {
+        session()->forget('applied_voucher_id');
+        return back()->with('success', 'Đã xóa mã voucher.');
     }
 }
