@@ -21,11 +21,22 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn đang trống.');
         }
 
+        // Kiểm tra tổng số lượng trong giỏ hàng không vượt quá 10
+        $totalQuantity = $cartItems->sum('quantity');
+        if ($totalQuantity > 10) {
+            return redirect()->route('cart.index')->with('error', 'Tổng số lượng sản phẩm trong giỏ hàng không được vượt quá 10. Vui lòng giảm số lượng trước khi thanh toán.');
+        }
+
         $cartTotal = $cartItems->sum(function ($item) {
             return $item['price'] * $item['quantity'];
         });
 
-        return view('checkout.index', compact('cartItems', 'cartTotal'));
+        // Lấy thông tin voucher đã áp dụng từ session
+        $appliedVoucher = session('applied_voucher');
+        $discount = $appliedVoucher['discount'] ?? 0;
+        $finalTotal = $cartTotal - $discount;
+
+        return view('checkout.index', compact('cartItems', 'cartTotal', 'appliedVoucher', 'discount', 'finalTotal'));
     }
 
     public function placeOrder(Request $request)
@@ -50,6 +61,11 @@ class CheckoutController extends Controller
             return $item['price'] * $item['quantity'];
         });
 
+        // Lấy thông tin voucher đã áp dụng từ session
+        $appliedVoucher = session('applied_voucher');
+        $discount = $appliedVoucher['discount'] ?? 0;
+        $finalTotal = $cartTotal - $discount;
+
         DB::beginTransaction();
         try {
             $userId = Auth::guard('khachhang')->id();
@@ -67,8 +83,8 @@ class CheckoutController extends Controller
                 'quan' => $request->quan,
                 'thanhpho' => $request->thanhpho,
                 'phigiaohang' => 0,
-                'tonggia' => $cartTotal,
-                'giamgia' => 0,
+                'tonggia' => $finalTotal,
+                'giamgia' => $discount,
                 'phuongthuc' => $request->phuongthuc,
                 'ngaydat' => Carbon::now(),
             ]);
@@ -96,12 +112,13 @@ class CheckoutController extends Controller
             ThanhToan::create([
                 'donhangid' => $donHang->id,
                 'phuongthuc' => $request->phuongthuc,
-                'sotien' => $cartTotal,
+                'sotien' => $finalTotal,
                 'trangthai' => in_array($request->phuongthuc, ['stripe', 'vnpay', 'paypal', 'vietqr']) ? 'cho_thanh_toan' : 'da_thanh_toan',
                 'ngaythanhtoan' => in_array($request->phuongthuc, ['stripe', 'vnpay', 'paypal', 'vietqr']) ? null : Carbon::now(),
             ]);
 
             session()->forget('cart');
+            session()->forget('applied_voucher');
             DB::commit();
 
             if (in_array($request->phuongthuc, ['stripe', 'vnpay', 'paypal', 'vietqr'])) {

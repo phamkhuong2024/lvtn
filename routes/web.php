@@ -16,17 +16,24 @@ use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\VoucherController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/about', 'about')->name('about');
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+Route::post('/product/{id}/review', [ReviewController::class, 'store'])->name('product.review.store');
+
+Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
+Route::post('/vouchers/apply', [VoucherController::class, 'apply'])->name('vouchers.apply');
+Route::post('/vouchers/remove', [VoucherController::class, 'remove'])->name('vouchers.remove');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place');
+Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index')->middleware('auth:khachhang');
+Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'placeOrder'])->name('checkout.place')->middleware('auth:khachhang');
 Route::get('/payment/vnpay-return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
 Route::get('/payment/return', [\App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.return');
 Route::get('/payment/success/{orderId}', [\App\Http\Controllers\PaymentController::class, 'success'])->name('payment.success');
@@ -87,6 +94,13 @@ Route::prefix('admin')->middleware(\App\Http\Middleware\AuthAdmin::class)->group
     Route::put('/producttype/{id}', [ProductTypeController::class, 'update'])->name('producttype.update');
     Route::delete('/producttype/{id}', [ProductTypeController::class, 'destroy'])->name('producttype.destroy');
 
+    Route::get('/vouchers', [VoucherController::class, 'adminIndex'])->name('admin.vouchers.index');
+    Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
+    Route::post('/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
+    Route::get('/vouchers/{id}/edit', [VoucherController::class, 'edit'])->name('admin.vouchers.edit');
+    Route::put('/vouchers/{id}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
+    Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.order.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('admin.order.show');
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
@@ -105,6 +119,13 @@ Route::prefix('nhanvien')->middleware(\App\Http\Middleware\AuthAdmin::class)->gr
     Route::delete('/{id}', [NhanVienController::class, 'destroy'])->name('nhanvien.destroy');
     Route::get('/profile', [NhanVienController::class, 'profile'])->name('nhanvien.profile');
     Route::post('/profile', [NhanVienController::class, 'updateProfile'])->name('nhanvien.profile.update');
+
+    Route::get('/vouchers', [VoucherController::class, 'adminIndex'])->name('nhanvien.vouchers.index');
+    Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('nhanvien.vouchers.create');
+    Route::post('/vouchers', [VoucherController::class, 'store'])->name('nhanvien.vouchers.store');
+    Route::get('/vouchers/{id}/edit', [VoucherController::class, 'edit'])->name('nhanvien.vouchers.edit');
+    Route::put('/vouchers/{id}', [VoucherController::class, 'update'])->name('nhanvien.vouchers.update');
+    Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy'])->name('nhanvien.vouchers.destroy');
 });
 
 // Khach hang routes

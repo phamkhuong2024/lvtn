@@ -54,10 +54,8 @@
                         <select name="phuongthuc" class="form-control" required>
                             <option value="cod">Thanh toán khi nhận hàng</option>
                             <option value="bank">Chuyển khoản</option>
-                            <option value="stripe">Stripe Sandbox</option>
                             <option value="vnpay">VNPay Sandbox</option>
-                            <option value="paypal">PayPal Sandbox</option>
-                            <option value="vietqr">VietQR Sandbox</option>
+                            
                         </select>
                     </div>
                     <div class="alert alert-info">
@@ -80,13 +78,186 @@
                         <div>{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}đ</div>
                     </div>
                     @endforeach
+                    
+                    <!-- Voucher Section -->
+                    <div class="voucher-section">
+                        <div class="voucher-input-group">
+                            <input type="text" id="voucherInput" class="form-control" placeholder="Nhập mã voucher" value="{{ $appliedVoucher['ten'] ?? '' }}" {{ $appliedVoucher ? 'disabled' : '' }}>
+                            @if($appliedVoucher)
+                                <button type="button" class="btn btn-danger" id="removeVoucherBtn">Xóa</button>
+                            @else
+                                <button type="button" class="btn btn-secondary" id="applyVoucherBtn">Áp dụng</button>
+                            @endif
+                        </div>
+                        <div id="voucherMessage" class="voucher-message"></div>
+                        <a href="{{ route('vouchers.index') }}" class="voucher-link" target="_blank">
+                            <i class="fas fa-ticket-alt"></i> Xem danh sách voucher khả dụng
+                        </a>
+                    </div>
+
+                    @if($appliedVoucher)
+                    <div class="summary-item discount-item">
+                        <span>Giảm giá ({{ $appliedVoucher['ten'] }})</span>
+                        <span class="discount-amount">-{{ number_format($discount, 0, ',', '.') }}đ</span>
+                    </div>
+                    @endif
+                    
                     <div class="summary-total">
                         <span>Tổng cộng</span>
-                        <strong>{{ number_format($cartTotal, 0, ',', '.') }}đ</strong>
+                        <strong id="finalTotal">{{ number_format($finalTotal ?? $cartTotal, 0, ',', '.') }}đ</strong>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applyBtn = document.getElementById('applyVoucherBtn');
+    const removeBtn = document.getElementById('removeVoucherBtn');
+    const voucherInput = document.getElementById('voucherInput');
+    const voucherMessage = document.getElementById('voucherMessage');
+    const finalTotalElement = document.getElementById('finalTotal');
+    const cartTotal = {{ $cartTotal }};
+
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            const voucherName = voucherInput.value.trim();
+            
+            if (!voucherName) {
+                showMessage('Vui lòng nhập mã voucher.', 'error');
+                return;
+            }
+
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('vouchers.apply') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    voucher_name: voucherName,
+                    cart_total: cartTotal
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    // Reload page to update UI
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            });
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch("{{ route('vouchers.remove') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    // Reload page to update UI
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            });
+        });
+    }
+
+    function showMessage(message, type) {
+        voucherMessage.textContent = message;
+        voucherMessage.className = 'voucher-message ' + (type === 'success' ? 'success' : 'error');
+        voucherMessage.style.display = 'block';
+    }
+});
+</script>
+
+<style>
+.voucher-section {
+    padding: 15px 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 15px 0;
+}
+
+.voucher-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.voucher-input-group input {
+    flex: 1;
+}
+
+.voucher-message {
+    display: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.voucher-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.voucher-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.voucher-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.voucher-link:hover {
+    text-decoration: underline;
+}
+
+.discount-item {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.discount-amount {
+    color: #28a745;
+}
+</style>
 @endsection

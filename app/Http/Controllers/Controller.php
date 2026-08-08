@@ -225,10 +225,12 @@ class Controller
             $searchSlug = Str::slug($search);
 
             // Match category IDs by name or slug
-            $matchedCategoryIds = Category::where('ten', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$searchSlug}%")
-                ->pluck('id')
-                ->toArray();
+            $matchedCategoryIds = Category::where(function($q) use ($search, $searchSlug) {
+                $q->where('ten', 'like', "%{$search}%");
+                if (Schema::hasColumn('danh_muc', 'slug')) {
+                    $q->orWhere('slug', 'like', "%{$searchSlug}%");
+                }
+            })->pluck('id')->toArray();
 
             // Handle common unaccented search terms
             $unaccentMap = [
@@ -236,6 +238,7 @@ class Controller
                 'quan'    => 'Quần',
                 'vay'     => 'Váy',
                 'phukien' => 'Phụ kiện',
+                'giay'    => 'Giày',
             ];
 
             if (isset($unaccentMap[$searchLower])) {
@@ -245,31 +248,45 @@ class Controller
             }
 
             // Match product type IDs by name or slug
-            $matchedTypeIds = ProductType::where('ten', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$searchSlug}%")
-                ->pluck('id')
-                ->toArray();
+            $matchedTypeIds = ProductType::where(function($q) use ($search, $searchSlug) {
+                $q->where('ten', 'like', "%{$search}%");
+                if (Schema::hasColumn('loai_san_pham', 'slug')) {
+                    $q->orWhere('slug', 'like', "%{$searchSlug}%");
+                }
+            })->pluck('id')->toArray();
 
             // Match brand IDs by name or slug
             $matchedBrandIds = Schema::hasTable('thuong_hieu')
-                ? Brand::where('ten', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$searchSlug}%")
-                    ->pluck('id')
-                    ->toArray()
+                ? Brand::where(function($q) use ($search, $searchSlug) {
+                    $q->where('ten', 'like', "%{$search}%");
+                    if (Schema::hasColumn('thuong_hieu', 'slug')) {
+                        $q->orWhere('slug', 'like', "%{$searchSlug}%");
+                    }
+                })->pluck('id')->toArray()
                 : [];
 
-            $query->where(function ($q) use ($search, $matchedCategoryIds, $matchedTypeIds, $matchedBrandIds) {
-                $q->where('ten', 'like', "%{$search}%")
-                  ->orWhere('mota', 'like', "%{$search}%");
+            // Check if this is a known category search term (ao, quan, vay, phukien)
+            $isKnownCategoryTerm = isset($unaccentMap[$searchLower]);
+            
+            $query->where(function ($q) use ($search, $searchLower, $isKnownCategoryTerm, $matchedCategoryIds, $matchedTypeIds, $matchedBrandIds) {
+                // If searching for known category terms AND we found matching categories
+                // Only show products from those categories (strict matching)
+                if ($isKnownCategoryTerm && !empty($matchedCategoryIds)) {
+                    $q->whereIn('danhmucid', $matchedCategoryIds);
+                } else {
+                    // General search: match by name/description OR category/type/brand
+                    $q->where('ten', 'like', "%{$search}%")
+                      ->orWhere('mota', 'like', "%{$search}%");
 
-                if (!empty($matchedCategoryIds)) {
-                    $q->orWhereIn('danhmucid', $matchedCategoryIds);
-                }
-                if (!empty($matchedTypeIds)) {
-                    $q->orWhereIn('loaisanphamid', $matchedTypeIds);
-                }
-                if (!empty($matchedBrandIds)) {
-                    $q->orWhereIn('thuong_hieu_id', $matchedBrandIds);
+                    if (!empty($matchedCategoryIds)) {
+                        $q->orWhereIn('danhmucid', $matchedCategoryIds);
+                    }
+                    if (!empty($matchedTypeIds)) {
+                        $q->orWhereIn('loaisanphamid', $matchedTypeIds);
+                    }
+                    if (!empty($matchedBrandIds)) {
+                        $q->orWhereIn('thuong_hieu_id', $matchedBrandIds);
+                    }
                 }
             });
         }

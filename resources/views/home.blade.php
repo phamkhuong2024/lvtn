@@ -37,13 +37,13 @@
 
         <div class="hero-visual">
             <div class="hero-card large">
-                <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80" alt="Mẫu thời trang nữ hiện đại">
+                <img src="{{ asset('images/dottie-back.png') }}" alt="Mẫu thời trang nữ hiện đại">
                 <div class="card-glass-badge">
                     <i class="fas fa-crown text-warning me-2"></i> Hot Trend 2026
                 </div>
             </div>
             <div class="hero-card small">
-                <img src="https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=700&q=80" alt="Bộ sưu tập đồ nữ">
+                <img src="{{ asset('images/juno_tui.png') }}" alt="Bộ sưu tập đồ nữ">
             </div>
         </div>
     </div>
@@ -61,17 +61,17 @@
 
         <div class="collection-grid">
             <article class="collection-card">
-                <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80" alt="Bộ sưu tập casual nữ">
+                <img src="{{ asset('images/dottie-casual.png') }}" alt="Bộ sưu tập casual nữ">
                 <h3>Casual Everyday</h3>
                 <p>Những item nhẹ nhàng, dễ phối và phù hợp cho cả đi làm lẫn dạo phố.</p>
             </article>
             <article class="collection-card">
-                <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80" alt="Bộ sưu tập streetwear nữ">
+                <img src="{{ asset('images/dottie-2.png') }}" alt="Bộ sưu tập streetwear nữ">
                 <h3>Streetwear Cool</h3>
-                <p>Phong cách mạnh mẽ, năng động cùng các tone màu nổi bật và chất liệu bền đẹp.</p>
+                <p>Khám phá vẻ đẹp thanh lịch với những thiết kế hiện đại, chất liệu cao cấp và gam màu tinh tế dành cho mọi phong cách.</p>
             </article>
             <article class="collection-card">
-                <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80" alt="Bộ sưu tập premium nữ">
+                <img src="{{ asset('images/gumac-premium.png') }}" alt="Bộ sưu tập premium nữ">
                 <h3>Premium Minimal</h3>
                 <p>Thiết kế tối giản, tinh tế và sang trọng cho các buổi gặp gỡ quan trọng.</p>
             </article>

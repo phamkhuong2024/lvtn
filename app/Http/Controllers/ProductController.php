@@ -301,7 +301,8 @@ class ProductController extends Controller
             'type', 
             'images.mauSac', 
             'variants.mauSac', 
-            'variants.kichCo'
+            'variants.kichCo',
+            'danhGia.khachHang'
         ])->findOrFail($id);
         
         // Get unique colors from variants
@@ -313,7 +314,12 @@ class ProductController extends Controller
         // Group images by color
         $imagesByColor = $product->images->groupBy('mausacid');
         
-        return view('sanpham.detail', compact('product', 'colors', 'sizes', 'imagesByColor'));
+        // Get reviews
+        $reviews = $product->danhGia;
+        $averageRating = $reviews->avg('sosao');
+        $totalReviews = $reviews->count();
+        
+        return view('sanpham.detail', compact('product', 'colors', 'sizes', 'imagesByColor', 'reviews', 'averageRating', 'totalReviews'));
     }
 
     public function destroy($id)

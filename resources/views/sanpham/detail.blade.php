@@ -107,8 +107,8 @@
                     <label class="selection-label">Số lượng:</label>
                     <div class="quantity-selector">
                         <button type="button" class="qty-btn" onclick="decreaseQuantity()">-</button>
-                        <input type="number" id="quantity" value="1" min="1" max="99" readonly>
-                        <button type="button" class="qty-btn" onclick="increaseQuantity()">+</button>
+                        <input type="number" id="quantity" value="1" min="1" max="10" readonly>
+                        <button type="button" class="qty-btn" id="btnIncrease" onclick="increaseQuantity()">+</button>
                     </div>
                     <span class="stock-info" id="stockInfo">Còn hàng</span>
                 </div>
@@ -151,6 +151,96 @@
             </div>
         </div>
         @endif
+
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h2>Đánh giá sản phẩm</h2>
+            
+            <div class="reviews-summary">
+                @if($totalReviews > 0)
+                    <div class="rating-overview">
+                        <div class="average-rating">
+                            <span class="rating-number">{{ number_format($averageRating, 1) }}</span>
+                            <div class="stars">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= floor($averageRating))
+                                        <i class="fas fa-star"></i>
+                                    @elseif($i - 0.5 <= $averageRating)
+                                        <i class="fas fa-star-half-alt"></i>
+                                    @else
+                                        <i class="far fa-star"></i>
+                                    @endif
+                                @endfor
+                            </div>
+                            <span class="review-count">{{ $totalReviews }} đánh giá</span>
+                        </div>
+                    </div>
+                @else
+                    <p class="no-reviews">Chưa có đánh giá nào cho sản phẩm này.</p>
+                @endif
+            </div>
+
+            <!-- Review Form -->
+            <div class="review-form-container">
+                <h3>Viết đánh giá của bạn</h3>
+                @auth('khachhang')
+                    <form id="reviewForm" class="review-form">
+                        @csrf
+                        <div class="form-group">
+                            <label>Đánh giá của bạn:</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="sosao" value="5" required>
+                                <label for="star5" title="5 sao"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star4" name="sosao" value="4">
+                                <label for="star4" title="4 sao"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star3" name="sosao" value="3">
+                                <label for="star3" title="3 sao"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star2" name="sosao" value="2">
+                                <label for="star2" title="2 sao"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star1" name="sosao" value="1">
+                                <label for="star1" title="1 sao"><i class="fas fa-star"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="binhluan">Nhận xét:</label>
+                            <textarea id="binhluan" name="binhluan" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..." maxlength="1000"></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
+                    </form>
+                @else
+                    <p class="login-required">
+                        <i class="fas fa-info-circle"></i>
+                        Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để đánh giá sản phẩm.
+                    </p>
+                @endauth
+            </div>
+
+            <!-- Reviews List -->
+            @if($reviews->count() > 0)
+            <div class="reviews-list" id="reviewsList">
+                @foreach($reviews as $review)
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <span class="reviewer-name">{{ $review->khachHang->ten }}</span>
+                            <span class="review-date">{{ $review->ngaydang }}</span>
+                        </div>
+                        <div class="review-stars">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= $review->sosao ? 'active' : '' }}"></i>
+                            @endfor
+                        </div>
+                    </div>
+                    @if($review->binhluan)
+                    <div class="review-comment">
+                        {{ $review->binhluan }}
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -260,17 +350,36 @@ function checkStock() {
 
 function increaseQuantity() {
     const input = document.getElementById('quantity');
+    const btnIncrease = document.getElementById('btnIncrease');
     const currentValue = parseInt(input.value);
-    if (currentValue < 99) {
+    
+    // Giới hạn tối đa 10 sản phẩm
+    if (currentValue < 10) {
         input.value = currentValue + 1;
+        
+        // Disable nút + khi đạt 10
+        if (currentValue + 1 >= 10) {
+            btnIncrease.disabled = true;
+            btnIncrease.style.opacity = '0.5';
+            btnIncrease.style.cursor = 'not-allowed';
+        }
     }
 }
 
 function decreaseQuantity() {
     const input = document.getElementById('quantity');
+    const btnIncrease = document.getElementById('btnIncrease');
     const currentValue = parseInt(input.value);
+    
     if (currentValue > 1) {
         input.value = currentValue - 1;
+        
+        // Enable lại nút + khi giảm xuống dưới 10
+        if (currentValue - 1 < 10) {
+            btnIncrease.disabled = false;
+            btnIncrease.style.opacity = '1';
+            btnIncrease.style.cursor = 'pointer';
+        }
     }
 }
 
@@ -353,6 +462,54 @@ function updateCartCount(amount) {
 // Initialize stock check on page load
 document.addEventListener('DOMContentLoaded', function() {
     checkStock();
+});
+
+// Handle review form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(reviewForm);
+            const sosao = formData.get('sosao');
+            const binhluan = formData.get('binhluan');
+            
+            if (!sosao) {
+                alert('Vui lòng chọn số sao đánh giá!');
+                return;
+            }
+            
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            fetch("{{ route('product.review.store', $product->id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    sosao: sosao,
+                    binhluan: binhluan
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.success);
+                    // Reload page to show new review
+                    window.location.reload();
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.');
+            });
+        });
+    }
 });
 </script>
 
@@ -693,6 +850,223 @@ document.addEventListener('DOMContentLoaded', function() {
     line-height: 1.8;
 }
 
+/* Reviews Section */
+.reviews-section {
+    margin-top: 40px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reviews-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.reviews-summary {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.rating-overview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.average-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-number {
+    font-size: 48px;
+    font-weight: 700;
+    color: #333;
+}
+
+.average-rating .stars {
+    display: flex;
+    gap: 4px;
+}
+
+.average-rating .stars i {
+    color: #ffc107;
+    font-size: 20px;
+}
+
+.review-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.no-reviews {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.review-form-container {
+    margin: 30px 0;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.review-form-container h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.review-form .form-group {
+    margin-bottom: 20px;
+}
+
+.review-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    font-size: 32px;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #ffc107;
+}
+
+.review-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.review-form textarea:focus {
+    outline: none;
+    border-color: #333;
+}
+
+.btn-submit-review {
+    padding: 12px 32px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-submit-review:hover {
+    background: #555;
+}
+
+.login-required {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 15px;
+}
+
+.login-required i {
+    margin-right: 8px;
+    color: #17a2b8;
+}
+
+.login-required a {
+    color: #333;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.review-item {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.reviewer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.review-date {
+    font-size: 13px;
+    color: #999;
+}
+
+.review-stars {
+    display: flex;
+    gap: 4px;
+}
+
+.review-stars i {
+    font-size: 16px;
+    color: #ddd;
+}
+
+.review-stars i.active {
+    color: #ffc107;
+}
+
+.review-comment {
+    color: #666;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
 @media (max-width: 768px) {
     .product-detail-layout {
         grid-template-columns: 1fr;
@@ -710,6 +1084,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .action-buttons {
         flex-direction: column;
+    }
+    
+    .reviews-section {
+        padding: 20px;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 }
 </style>

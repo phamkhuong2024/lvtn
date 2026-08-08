@@ -55,4 +55,7 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class, 'sanphamid');
     }
+    public function danhGia(){
+        return $this->hasMany(DanhGia::class, 'sanphamid');
+    }
 }

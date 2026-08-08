@@ -26,6 +26,7 @@
                         <a href="{{ route('color.index') }}" class="submenu-item"><i class="fas fa-palette"></i> Màu sắc</a>
                         <a href="{{ route('size.index') }}" class="submenu-item"><i class="fas fa-ruler"></i> Kích cỡ</a>
                     </div>
+                    <a href="{{ route('nhanvien.vouchers.index') }}" class="{{ request()->routeIs('nhanvien.vouchers.*') ? 'active' : '' }}"><i class="fas fa-ticket-alt"></i> Voucher</a>
                     <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>
                 @else
                     {{-- Admin xem được tất cả --}}
@@ -45,6 +46,7 @@
                     </div>
                     
                     <a href="{{ route('admin.order.index') }}" class="{{ request()->routeIs('admin.order.*') ? 'active' : '' }}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                    <a href="{{ route('admin.vouchers.index') }}" class="{{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }}"><i class="fas fa-ticket-alt"></i> Voucher</a>
                     <a href="{{ route('khachhang.index') }}"><i class="fas fa-users"></i> Khách hàng</a>
                     <a href="{{ route('nhanvien.index') }}"><i class="fas fa-user-tie"></i> Nhân viên</a>
                     <a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Về cửa hàng</a>
