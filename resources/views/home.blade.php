@@ -27,10 +27,10 @@
 
         <div class="hero-visual">
             <div class="hero-card large">
-                <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80" alt="Mẫu thời trang nữ hiện đại">
+                <img src="{{ asset('images/dottie-back.png') }}" alt="Mẫu thời trang nữ hiện đại">
             </div>
             <div class="hero-card small">
-                <img src="https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=700&q=80" alt="Bộ sưu tập đồ nữ">
+                <img src="{{ asset('images/juno_tui.png') }}" alt="Bộ sưu tập đồ nữ">
             </div>
         </div>
     </div>
